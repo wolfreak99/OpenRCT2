@@ -6435,6 +6435,7 @@ void game_command_callback_ride_remove_track_piece(sint32 eax, sint32 ebx, sint3
 /**
  *
  *  rct2: 0x006B49D9
+ *  modified to support the refurbish ride button, should be renamed to game_command_modify_ride
  */
 void game_command_demolish_ride(sint32 *eax, sint32 *ebx, sint32 *ecx, sint32 *edx, sint32 *esi, sint32 *edi, sint32 *ebp)
 {
@@ -6480,6 +6481,9 @@ void game_command_demolish_ride(sint32 *eax, sint32 *ebx, sint32 *ecx, sint32 *e
     }
     else
     {
+        gCommandExpenditureType = RCT_EXPENDITURE_TYPE_RIDE_CONSTRUCTION;
+        switch (*ecx) {
+        case RIDE_MODIFY_DEMOLISH:
         if (*ebx & GAME_COMMAND_FLAG_APPLY)
         {
             if (ride->overall_view.xy != RCT_XY8_UNDEFINED) {
@@ -6576,17 +6580,105 @@ void game_command_demolish_ride(sint32 *eax, sint32 *ebx, sint32 *ecx, sint32 *e
             gCommandPosition.x = x;
             gCommandPosition.y = y;
             gCommandPosition.z = z;
-            gCommandExpenditureType = RCT_EXPENDITURE_TYPE_RIDE_CONSTRUCTION;
-            return;
-        }
-        else
-        {
+        } else {
             *ebx = 0;
-            gCommandExpenditureType = RCT_EXPENDITURE_TYPE_RIDE_CONSTRUCTION;
-            return;
         }
+        break;
+    case RIDE_MODIFY_RENEW:
+        if (*ebx & GAME_COMMAND_FLAG_APPLY) {
+            ride_renew(ride);
+            window_close_by_number(WC_DEMOLISH_RIDE_PROMPT, ride_id);
+            window_invalidate_by_class(WC_RIDE);
+        }
+        *ebx = ride_get_refurb_price(ride_id);
+        break;
+    }
     }
 }
+
+sint32 ride_get_refurb_price(sint32 rideIndex)
+{
+    rct_ride *ride = get_ride(rideIndex);
+    rct_xy_element trackElement;
+    track_begin_end trackBeginEnd;
+    money32 addedcost, cost = 0;
+
+    if (!ride_try_get_origin_element(rideIndex, &trackElement)) {
+        gGameCommandErrorText = STR_TRACK_TOO_LARGE_OR_TOO_MUCH_SCENERY;
+        return MONEY32_UNDEFINED;
+    }
+
+    //find the start in case it is not a complete circuit
+    rct_map_element* initial_map = trackElement.element;
+    if (track_block_get_previous(trackElement.x, trackElement.y, trackElement.element, &trackBeginEnd)) {
+        do {
+            rct_xy_element lastGood = {
+                .element = trackBeginEnd.begin_element,
+                .x = trackBeginEnd.begin_x,
+                .y = trackBeginEnd.begin_y
+            };
+
+            if (!track_block_get_previous(trackBeginEnd.end_x, trackBeginEnd.end_y, trackBeginEnd.begin_element, &trackBeginEnd)) {
+                trackElement = lastGood;
+                break;
+            }
+        } while (initial_map != trackBeginEnd.begin_element);
+    }
+
+    sint32 z = trackElement.element->base_height * 8;
+    uint8 track_type = trackElement.element->properties.track.type;
+    uint8 direction = trackElement.element->type & MAP_ELEMENT_DIRECTION_MASK;
+
+    const rct_track_coordinates *trackCoordinates = &TrackCoordinates[trackElement.element->properties.track.type];
+    // Used in the following loop to know when we have
+    // completed all of the elements and are back at the
+    // start.
+    initial_map = trackElement.element;
+
+    sint16 start_x = trackElement.x;
+    sint16 start_y = trackElement.y;
+    sint16 start_z = z + trackCoordinates->z_begin;
+
+    do {
+        addedcost = game_do_command(
+            trackElement.x,
+            (direction << 8),
+            trackElement.y,
+            trackElement.element->properties.track.type | ((trackElement.element->properties.track.sequence & 0xF) << 8),
+            GAME_COMMAND_REMOVE_TRACK,
+            trackElement.element->base_height * 8,
+            0
+        );
+
+        cost += (addedcost == MONEY32_UNDEFINED) ? 0 : addedcost;
+
+        if (!track_block_get_next(&trackElement, &trackElement, NULL, NULL))
+            break;
+
+        z = trackElement.element->base_height * 8;
+        direction = trackElement.element->type & MAP_ELEMENT_DIRECTION_MASK;
+        track_type = trackElement.element->properties.track.type;
+
+    } while (trackElement.element != initial_map);
+
+    return (-cost) / 2;
+}
+
+void ride_renew(rct_ride *ride)
+{
+    // Set build date to current date (so the ride is brand new)
+    ride->build_date = gDateMonthsElapsed;
+    // Set reliability to 100
+    ride->reliability = RIDE_INITIAL_RELIABILITY;
+
+    if (ride->status == RIDE_STATUS_CLOSED || ride->status == RIDE_STATUS_TESTING) {
+        // Reset sell price and auto-renew the ride until it's opened again 
+        ride->lifecycle_flags &= ~(RIDE_LIFECYCLE_EVER_BEEN_OPENED);
+    }
+
+    return;
+}
+
 
 /**
  *

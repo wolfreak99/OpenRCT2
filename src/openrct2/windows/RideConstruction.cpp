@@ -669,12 +669,12 @@ static void window_ride_construction_close(rct_window *w)
 
         window_ride_main_open(rideIndex);
     } else {
-        sint32 eax = gGamePaused;
+        sint32 savedPausedState = gGamePaused;
 
         gGamePaused = 0;
-        game_do_command(0, 9, 0, rideIndex, GAME_COMMAND_DEMOLISH_RIDE, 0, 0);
+        game_do_command(0, GAME_COMMAND_FLAG_APPLY | GAME_COMMAND_FLAG_ALLOW_DURING_PAUSED, RIDE_MODIFY_DEMOLISH, rideIndex, GAME_COMMAND_DEMOLISH_RIDE, 0, 0);
 
-        gGamePaused = eax;
+        gGamePaused = savedPausedState;
     }
 }
 

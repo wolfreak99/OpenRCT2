@@ -919,6 +919,11 @@ enum {
     TRACK_SELECTION_FLAG_RECHECK          = 1 << 3,
 };
 
+enum {
+    RIDE_MODIFY_DEMOLISH,
+    RIDE_MODIFY_RENEW
+};
+
 typedef struct rct_ride_properties {
     uint32 flags;
     uint8 min_value;
@@ -939,6 +944,9 @@ extern const rct_ride_properties RideProperties[RIDE_TYPE_COUNT];
 #define MAX_RIDE_MEASUREMENTS 8
 #define RIDE_VALUE_UNDEFINED 0xFFFF
 #define RIDE_INITIAL_RELIABILITY ((100 << 8) | 0xFF) // Upper byte is percentage, lower byte is "decimal".
+
+#define REFURBISH_MINIMUM_RIDE_AGE_MONEY 8
+#define REFURBISH_MINIMUM_RIDE_AGE_NO_MONEY 16
 
 #define STATION_DEPART_FLAG (1 << 7)
 #define STATION_DEPART_MASK (~STATION_DEPART_FLAG)
@@ -1085,6 +1093,7 @@ void ride_set_name(sint32 rideIndex, const char *name);
 void game_command_set_ride_name(sint32 *eax, sint32 *ebx, sint32 *ecx, sint32 *edx, sint32 *esi, sint32 *edi, sint32 *ebp);
 void game_command_set_ride_setting(sint32 *eax, sint32 *ebx, sint32 *ecx, sint32 *edx, sint32 *esi, sint32 *edi, sint32 *ebp);
 sint32 ride_get_refund_price(sint32 ride_id);
+sint32 ride_get_refurb_price(sint32 ride_id);
 bool shop_item_is_photo(sint32 shopItem);
 bool shop_item_has_common_price(sint32 shopItem);
 rct_string_id get_friendly_track_type_name(uint8 trackType, rct_ride_entry * rideEntry);

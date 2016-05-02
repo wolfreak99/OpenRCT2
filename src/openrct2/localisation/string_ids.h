@@ -3793,6 +3793,14 @@ enum {
 
     STR_DEBUG_PAINT_SHOW_DIRTY_VISUALS = 6144,
 
+    STR_REFURBISH_RIDE_TIP = 5914,
+    STR_CANT_REFURBISH_RIDE = 5915,
+    STR_CANT_REFURBISH_NOT_NEEDED = 5916,
+    STR_REFURBISH = 5917,
+    STR_REFURBISH_RIDE = 5918,
+    STR_REFURBISH_RIDE_ID_MONEY = 5919,
+    STR_REFURBISH_RIDE_ID_NO_MONEY = 5920,
+
     // Have to include resource strings (from scenarios and objects) for the time being now that language is partially working
     STR_COUNT = 32768
 };

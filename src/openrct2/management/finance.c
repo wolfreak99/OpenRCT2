@@ -150,8 +150,7 @@ void finance_pay_ride_upkeep()
 
     FOR_ALL_RIDES(i, ride) {
         if (!(ride->lifecycle_flags & RIDE_LIFECYCLE_EVER_BEEN_OPENED)) {
-            ride->build_date = gDateMonthsElapsed;
-            ride->reliability = RIDE_INITIAL_RELIABILITY;
+            ride_renew(ride);
         }
 
         if (ride->status != RIDE_STATUS_CLOSED && !(gParkFlags & PARK_FLAGS_NO_MONEY)) {

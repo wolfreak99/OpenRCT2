@@ -67,6 +67,7 @@ The following people are not part of the project team, but have been contributin
 * Thomas Delebo (delebota) - Misc.
 * Brian Callahan (ibara) - OpenBSD port.
 * Jens Heuseveldt (jensj12) - Mountain tool improvements, misc.
+* Jens Heuseveldt (jensj12) - Misc.
 
 ## Bug fixes
 * (halfbro)

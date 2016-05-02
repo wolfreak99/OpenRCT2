@@ -4453,6 +4453,13 @@ STR_6141    :RCT1 Bottom Toolbar
 STR_6142    :{WINDOW_COLOUR_2}Track name: {BLACK}{STRING}
 STR_6143    :{WINDOW_COLOUR_2}Ride type: {BLACK}{STRINGID}
 STR_6144    :Show dirty visuals
+STR_6145    :{SMALLFONT}{BLACK}Refurbishes the ride,{NEWLINE}makes it like new
+STR_6146    :Can't refurbish ride...
+STR_6147    :{SMALLFONT}{BLACK}Ride doesn't need refurbishing
+STR_6148    :Refurbish
+STR_6149    :Refurbish ride/attraction
+STR_6150    :{WINDOW_COLOUR_1}Do you want to refurbish {STRINGID} for {BLACK}{CURRENCY}?
+STR_6151    :{WINDOW_COLOUR_1}Do you want to refurbish {STRINGID}?
 
 #############
 # Scenarios #

@@ -706,6 +706,7 @@ rct_window *window_ride_open_station(sint32 rideIndex, sint32 stationIndex);
 rct_window *window_ride_open_track(rct_map_element *mapElement);
 rct_window *window_ride_open_vehicle(rct_vehicle *vehicle);
 void window_ride_demolish_prompt_open(sint32 rideIndex);
+void window_ride_refurbish_prompt_open(sint32 rideIndex);
 void window_ride_construct(rct_window *w);
 void window_ride_list_open();
 void window_ride_list_refresh_list(rct_window *w);
