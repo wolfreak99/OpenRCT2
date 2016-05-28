@@ -475,6 +475,29 @@ namespace Config
         writer->WriteBoolean("news", model->enable_news);
     }
 
+    static void ReadPeepsEx(IIniReader * reader)
+    {
+        if (reader->ReadSection("peeps_ex")) {
+            auto model = &gConfigPeepsEx;
+            model->guest_max_time_in_park = reader->GetSint32("guest_max_time_in_park", 0x10000);
+            model->peep_allow_sidestepping = reader->GetBoolean("peep_allow_sidestepping", false);
+            model->guest_messy_queuing = reader->GetBoolean("guest_messy_queuing", false);
+            model->peep_messy_walking = reader->GetBoolean("peep_messy_walking", false);
+            model->peep_messy_congestion = reader->GetBoolean("peep_messy_congestion", false);
+        }
+    }
+
+    static void WritePeepsEx(IIniWriter * writer)
+    {
+        auto model = &gConfigPeepsEx;
+        writer->WriteSection("peeps_ex");
+        writer->WriteSint32("guest_max_time_in_park", model->guest_max_time_in_park);
+        writer->WriteBoolean("peep_allow_sidestepping", model->peep_allow_sidestepping);
+        writer->WriteBoolean("guest_messy_queuing", model->guest_messy_queuing);
+        writer->WriteBoolean("peep_messy_walking", model->peep_messy_walking);
+        writer->WriteBoolean("peep_messy_congestion", model->peep_messy_congestion);
+    }
+
     static void ReadFont(IIniReader * reader)
     {
         if (reader->ReadSection("font"))
@@ -525,6 +548,7 @@ namespace Config
             ReadNotifications(reader.get());
             ReadTwitch(reader.get());
             ReadFont(reader.get());
+            ReadPeepsEx(reader.get());
             return true;
         }
         catch (const Exception &)
@@ -546,6 +570,7 @@ namespace Config
             ReadNotifications(reader.get());
             ReadTwitch(reader.get());
             ReadFont(reader.get());
+            ReadPeepsEx(reader.get());
             return true;
         }
         catch (const Exception &)
@@ -567,6 +592,7 @@ namespace Config
             WriteNotifications(writer.get());
             WriteTwitch(writer.get());
             WriteFont(writer.get());
+            WritePeepsEx(writer.get());
             return true;
         }
         catch (const Exception &ex)
@@ -626,6 +652,7 @@ extern "C"
     NetworkConfiguration         gConfigNetwork;
     NotificationConfiguration    gConfigNotifications;
     FontConfiguration            gConfigFonts;
+    PeepsExConfiguration         gConfigPeepsEx;
 
     void config_set_defaults()
     {

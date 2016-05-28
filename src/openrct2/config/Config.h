@@ -193,6 +193,19 @@ typedef struct FontConfiguration
     sint32      height_big;
 } FontConfiguration;
 
+#ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
+
+typedef struct PeepsExConfiguration
+{
+    uint32 guest_max_time_in_park;
+    bool peep_allow_sidestepping;
+    bool guest_messy_queuing;
+    bool peep_messy_walking;
+    bool peep_messy_congestion;
+} PeepsExConfiguration;
+
+#endif
+
 enum SORT
 {
     SORT_NAME_ASCENDING,
@@ -235,6 +248,7 @@ extern "C"
     extern NetworkConfiguration         gConfigNetwork;
     extern NotificationConfiguration    gConfigNotifications;
     extern FontConfiguration            gConfigFonts;
+    extern PeepsExConfiguration         gConfigPeepsEx;
 
     bool config_open(const utf8 * path);
     bool config_save(const utf8 * path);
