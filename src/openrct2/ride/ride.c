@@ -5698,7 +5698,7 @@ void game_command_set_ride_name(sint32 *eax, sint32 *ebx, sint32 *ecx, sint32 *e
  *
  *  rct2: 0x006CB7FB
  */
-sint32 ride_get_refund_price(sint32 ride_id)
+sint32 ride_demolish_and_refund(sint32 ride_id)
 {
     uint8 oldpaused = gGamePaused;
     gGamePaused = 0;
@@ -6503,7 +6503,7 @@ void game_command_demolish_ride(sint32 *eax, sint32 *ebx, sint32 *ecx, sint32 *e
             ride_clear_for_construction(ride_id);
             ride_remove_peeps(ride_id);
             ride_stop_peeps_queuing(ride_id);
-            *ebx = ride_get_refund_price(ride_id);
+            *ebx = ride_demolish_and_refund(ride_id);
 
             sub_6CB945(ride_id);
             news_item_disable_news(NEWS_ITEM_RIDE, ride_id);
@@ -6590,13 +6590,13 @@ void game_command_demolish_ride(sint32 *eax, sint32 *ebx, sint32 *ecx, sint32 *e
             window_close_by_number(WC_DEMOLISH_RIDE_PROMPT, ride_id);
             window_invalidate_by_class(WC_RIDE);
         }
-        *ebx = ride_get_refurb_price(ride_id);
+        *ebx = (-ride_get_refurb_price(ride_id)) / 2;
         break;
     }
     }
 }
 
-sint32 ride_get_refurb_price(sint32 rideIndex)
+sint32 ride_get_refund_price(sint32 rideIndex)
 {
     rct_ride *ride = get_ride(rideIndex);
     rct_xy_element trackElement;
@@ -6661,7 +6661,7 @@ sint32 ride_get_refurb_price(sint32 rideIndex)
 
     } while (trackElement.element != initial_map);
 
-    return (-cost) / 2;
+    return cost;
 }
 
 void ride_renew(rct_ride *ride)

@@ -1093,7 +1093,7 @@ void ride_set_name(sint32 rideIndex, const char *name);
 void game_command_set_ride_name(sint32 *eax, sint32 *ebx, sint32 *ecx, sint32 *edx, sint32 *esi, sint32 *edi, sint32 *ebp);
 void game_command_set_ride_setting(sint32 *eax, sint32 *ebx, sint32 *ecx, sint32 *edx, sint32 *esi, sint32 *edi, sint32 *ebp);
 sint32 ride_get_refund_price(sint32 ride_id);
-sint32 ride_get_refurb_price(sint32 ride_id);
+sint32 ride_demolish_and_refund(sint32 ride_id);
 bool shop_item_is_photo(sint32 shopItem);
 bool shop_item_has_common_price(sint32 shopItem);
 rct_string_id get_friendly_track_type_name(uint8 trackType, rct_ride_entry * rideEntry);

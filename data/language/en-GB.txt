@@ -4460,6 +4460,7 @@ STR_6148    :Refurbish
 STR_6149    :Refurbish ride/attraction
 STR_6150    :{WINDOW_COLOUR_1}Do you want to refurbish {STRINGID} for {BLACK}{CURRENCY}?
 STR_6151    :{WINDOW_COLOUR_1}Do you want to refurbish {STRINGID}?
+STR_6152    :{WINDOW_COLOUR_1}Are you sure you want to completely demolish {STRINGID} and gain {BLACK}{CURRENCY}?
 
 #############
 # Scenarios #
