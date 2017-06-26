@@ -23,7 +23,7 @@ typedef struct confirm_prompt_args {
     const utf8 * path;
 } confirm_prompt_args;
 
-typedef void (*confirm_prompt_callback(rct_window * callingWindow, rct_widgetindex callingWidgetIndex, sint32 responseIndex, confirm_prompt_args * args));
+typedef void (*confirm_prompt_callback(rct_windowclass callingWindowClass, rct_windownumber callingWindowNumber, rct_widgetindex callingWidgetIndex, sint32 responseIndex, confirm_prompt_args * args));
 
 typedef enum CONFIRM_PROMPT_RESPONSE_IDX {
     CONFIRM_PROMPT_RESPONSE_IDX_YES,
@@ -38,5 +38,8 @@ extern rct_string_id gConfirmPromptButtonYes;
 extern rct_string_id gConfirmPromptButtonNo;
 extern rct_string_id gConfirmPromptButtonCancel;
 extern sint64 gConfirmPromptDescriptionArgs[4];
+
+void window_confirm_prompt_open_raw(rct_windowclass callingWindowClass, rct_windownumber callingWindowNumber, rct_widgetindex callingWidgetIndex, confirm_prompt_callback * callback, confirm_prompt_args * args, uint16 flags);
+void window_confirm_prompt_open(rct_window * callingWindow, rct_widgetindex callingWidgetIndex, confirm_prompt_callback * callback, confirm_prompt_args * args, uint16 flags)
 
 #endif

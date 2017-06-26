@@ -90,12 +90,13 @@ rct_string_id gConfirmPromptButtonNo = STR_NONE;
 rct_string_id gConfirmPromptButtonCancel = STR_CANCEL;
 sint64 gConfirmPromptDescriptionArgs[4];
 
+rct_windowclass _confirmPromptCallingWindowClass;
+rct_windownumber _confirmPromptCallingWindowNumber;
 rct_widgetindex _confirmPromptCallingWidgetIndex;
 confirm_prompt_callback * _confirmPromptCallback;
-rct_window * _confirmPromptCallingWindow;
 confirm_prompt_args * _confirmPromptArgs;
 
-void window_confirm_prompt_open(rct_window * callingWindow, rct_widgetindex callingWidgetIndex, confirm_prompt_callback callback, confirm_prompt_args * args, uint16 flags)
+void window_confirm_prompt_open_raw(rct_windowclass callingWindowClass, rct_windownumber callingWindowNumber, rct_widgetindex callingWidgetIndex, confirm_prompt_callback * callback, confirm_prompt_args * args, uint16 flags)
 {
     // TODO allow multiple confirm prompts to be open
     // An important thing to keep in mind will be to label not only the number
@@ -119,11 +120,17 @@ void window_confirm_prompt_open(rct_window * callingWindow, rct_widgetindex call
 
     window_init_scroll_widgets(w);
 
-    w->number = callingWindow->number;
-    _confirmPromptCallback = callback;
-    _confirmPromptCallingWindow = callingWindow;
+    w->number = callingWindowNumber;
+    _confirmPromptCallingWindowClass = callingWindowClass;
+    _confirmPromptCallingWindowNumber = callingWindowNumber;
     _confirmPromptCallingWidgetIndex = callingWidgetIndex;
+    _confirmPromptCallback = callback;
     _confirmPromptArgs = args;
+}
+
+void window_confirm_prompt_open(rct_window * callingWindow, rct_widgetindex callingWidgetIndex, confirm_prompt_callback * callback, confirm_prompt_args * args, uint16 flags)
+{
+    window_confirm_prompt_open_raw(callingWindow->classification, callingWindow->number, callingWidgetIndex, callback, args, flags);
 }
 
 static void window_confirm_prompt_mouseup(rct_window *w, rct_widgetindex widgetIndex)
@@ -131,18 +138,18 @@ static void window_confirm_prompt_mouseup(rct_window *w, rct_widgetindex widgetI
     switch (widgetIndex) {
     case WIDX_YES:
         if (_confirmPromptCallback != NULL)
-            _confirmPromptCallback(_confirmPromptCallingWindow, _confirmPromptCallingWidgetIndex, CONFIRM_PROMPT_RESPONSE_IDX_YES, _confirmPromptArgs);
+            _confirmPromptCallback(_confirmPromptCallingWindowNumber, _confirmPromptCallingWidgetIndex, CONFIRM_PROMPT_RESPONSE_IDX_YES, _confirmPromptArgs);
         window_close(w);
         break;
     case WIDX_NO:
         if (_confirmPromptCallback != NULL)
-            _confirmPromptCallback(_confirmPromptCallingWindow, _confirmPromptCallingWidgetIndex, CONFIRM_PROMPT_RESPONSE_IDX_NO, _confirmPromptArgs);
+            _confirmPromptCallback(_confirmPromptCallingWindowNumber, _confirmPromptCallingWidgetIndex, CONFIRM_PROMPT_RESPONSE_IDX_NO, _confirmPromptArgs);
         window_close(w);
         break;
     case WIDX_CANCEL:
     case WIDX_CLOSE:
         if (_confirmPromptCallback != NULL)
-            _confirmPromptCallback(_confirmPromptCallingWindow, _confirmPromptCallingWidgetIndex, CONFIRM_PROMPT_RESPONSE_IDX_CANCEL, _confirmPromptArgs);
+            _confirmPromptCallback(_confirmPromptCallingWindowNumber, _confirmPromptCallingWidgetIndex, CONFIRM_PROMPT_RESPONSE_IDX_CANCEL, _confirmPromptArgs);
         window_close(w);
         break;
     }
