@@ -477,13 +477,14 @@ enum {
     WC_CUSTOM_CURRENCY_CONFIG = 129,
     WC_DEBUG_PAINT = 130,
     WC_VIEW_CLIPPING = 131,
+    WC_CONFIRM_PROMPT = 132,
 
     // Only used for colour schemes
     WC_STAFF = 220,
     WC_EDITOR_TRACK_BOTTOM_TOOLBAR = 221,
     WC_EDITOR_SCENARIO_BOTTOM_TOOLBAR = 222,
     WC_CHAT = 223,
-
+    
     WC_NULL = 255,
 };
 
