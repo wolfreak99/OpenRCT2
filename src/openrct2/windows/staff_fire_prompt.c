@@ -14,6 +14,36 @@
  *****************************************************************************/
 #pragma endregion
 
+#ifndef LINK_STAFF_FIRE_TO_CONFIRM_PROMPT
+#define LINK_STAFF_FIRE_TO_CONFIRM_PROMPT
+#endif
+
+#ifdef LINK_STAFF_FIRE_TO_CONFIRM_PROMPT
+
+#include "../game.h"
+#include "../interface/window.h"
+#include "../peep/peep.h"
+#include "confirm_prompt.h"
+
+void window_staff_fire_confirm_prompt_callback(rct_windowclass callingClass, rct_windownumber callingNumber, rct_widgetindex callingWidget, sint32 responseIndex, confirm_prompt_args * args)
+{
+    assert(callingClass == WC_FIRE_PROMPT);
+
+    if (responseIndex == CONFIRM_PROMPT_RESPONSE_IDX_YES) {
+        rct_peep* peep = &get_sprite(callingNumber)->peep;
+        if (peep != NULL)
+            game_do_command(peep->x, 1, peep->y, callingNumber, GAME_COMMAND_FIRE_STAFF_MEMBER, 0, 0);
+    }
+
+}
+
+void window_staff_fire_prompt_open(rct_peep* peep)
+{
+    window_confirm_prompt_open_raw(WC_FIRE_PROMPT, peep->sprite_index, 0, window_staff_fire_confirm_prompt_callback, NULL, WF_TRANSPARENT);
+}
+
+#else
+
 #include "../game.h"
 #include "../interface/widget.h"
 #include "../interface/window.h"
@@ -132,3 +162,9 @@ static void window_staff_fire_paint(rct_window *w, rct_drawpixelinfo *dpi)
 
     gfx_draw_string_centred_wrapped(dpi, gCommonFormatArgs, x, y, WW - 4, STR_FIRE_STAFF_ID, COLOUR_BLACK);
 }
+
+#endif
+
+#ifdef LINK_STAFF_FIRE_TO_CONFIRM_PROMPT
+#undef LINK_STAFF_FIRE_TO_CONFIRM_PROMPT
+#endif
