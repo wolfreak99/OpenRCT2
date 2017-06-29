@@ -1210,6 +1210,24 @@ static sint32 cc_open(const utf8 **argv, sint32 argc) {
     return 0;
 }
 
+static sint32 cc_spawn_guests(const utf8 **argv, sint32 argc) {
+    if (argc > 0) {
+        bool validAmount;
+        int amount = console_parse_int(argv[0], &validAmount);
+        if (validAmount) {
+            if (amount > 0 && amount <= 10000) {
+                game_do_command(0, GAME_COMMAND_FLAG_APPLY, CHEAT_GENERATEGUESTS, amount, GAME_COMMAND_CHEAT, 0, 0);
+            }
+            else {
+                console_writeline("Value must be between 1 and 10,000");
+            }
+        }
+        else {
+            console_writeline("Invalid variable");
+        }
+    }
+    return 0;
+}
 
 typedef sint32 (*console_command_func)(const utf8 **argv, sint32 argc);
 typedef struct console_command {
@@ -1285,6 +1303,7 @@ console_command console_command_table[] = {
     { "fix_banner_count", cc_fix_banner_count, "Fixes incorrectly appearing 'Too many banners' error by marking every banner entry without a map element as null.", "fix_banner_count" },
     { "rides", cc_rides, "Ride management.", "rides <subcommand>" },
     { "staff", cc_staff, "Staff management.", "staff <subcommand>"},
+    { "spawn_guests", cc_spawn_guests, "Spawns a specified number of guests", "spawn_guests <amount>"},
 };
 
 static sint32 cc_windows(const utf8 **argv, sint32 argc) {
