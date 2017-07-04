@@ -1039,8 +1039,7 @@ static void sub_68F41A(rct_peep *peep, sint32 index)
         //	this gives some rides a bit of new life, makes new people spend entry fees again, also gets
         //	rid of the bizarre '10 hours in park'. Note that enabling this at a low value on a long-running
         //	park will cause a general exodus.
-
-        if (peep->state == PEEP_STATE_WALKING) {
+        if (network_get_mode() == NETWORK_MODE_NONE && peep->state == PEEP_STATE_WALKING) {
             uint32 time_duration = gScenarioTicks - peep->time_in_park;
 
             if ((time_duration >> 11) > gConfigPeepsEx.guest_max_time_in_park) {
@@ -1595,13 +1594,9 @@ static sint32 peep_update_action(sint16* x, sint16* y, sint16* xy_distance, rct_
             return 0;
         }
 
-        bool useVanillaWalking = true;
-
 #ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
-        useVanillaWalking = !gConfigPeepsEx.peep_allow_sidestepping;
+        if (network_get_mode != NETWORK_MODE_NONE || !gConfigPeepsEx.peep_allow_sidestepping) {
 #endif
-
-        if (useVanillaWalking) {
             sint32 direction = 0;
             if (x_delta < y_delta) {
                 direction = 8;
@@ -1618,9 +1613,10 @@ static sint32 peep_update_action(sint16* x, sint16* y, sint16* xy_distance, rct_
             peep->sprite_direction = direction;
             *x = peep->x + word_981D7C[direction / 8].x;
             *y = peep->y + word_981D7C[direction / 8].y;
+
+#ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
         }
         else {
-#ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
             int spriteDirection = 0;
             int preferenceDirection = peep->peeps_ex_direction_preference;
             int sidestepX = 0;
@@ -1670,8 +1666,8 @@ static sint32 peep_update_action(sint16* x, sint16* y, sint16* xy_distance, rct_
 
             *x = peep->x + actualStepX + sidestepX;
             *y = peep->y + actualStepY + sidestepY;
-#endif
         }
+#endif
         peep->no_action_frame_no++;
         const rct_peep_animation * peepAnimation = g_peep_animation_entries[peep->sprite_type].sprite_animation;
         const uint8* imageOffset = peepAnimation[peep->action_sprite_type].frame_offsets;
@@ -4954,20 +4950,20 @@ static void peep_update_queuing(rct_peep* peep){
                 is_front = false;
             }
         }
-        bool alwaysAllowEntry = false;
 
 #ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
-
-        // When we messy queue, we always let people in who reach the entrance:
-        //	the game can be quite fussy about who is truly in front when it comes
-        //	to riders showing up by themselves and being ejected again; this fix
-        //	prevents peeps from being denied entrance and technically allows peeps
-        //	to peep ahead (though they do not do it much at all)
-        alwaysAllowEntry = gConfigPeepsEx.guest_messy_queuing;
-
+        if (network_get_mode() == NETWORK_MODE_NONE) {
+            // When we messy queue, we always let people in who reach the entrance:
+            //	the game can be quite fussy about who is truly in front when it comes
+            //	to riders showing up by themselves and being ejected again; this fix
+            //	prevents peeps from being denied entrance and technically allows peeps
+            //	to peep ahead (though they do not do it much at all)
+            if (!is_front)
+                is_front = gConfigPeepsEx.guest_messy_queuing;
+        }
 #endif
 
-        if (alwaysAllowEntry || is_front){
+        if (is_front) {
             //Happens every time peep goes onto ride.
             peep->destination_tolerence = 0;
             peep_decrement_num_riders(peep);
@@ -6780,16 +6776,18 @@ static void peep_update(rct_peep *peep)
     }
 
 #ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
-    if (gConfigPeepsEx.peep_messy_congestion && peep->state == PEEP_STATE_WALKING) {
-        if (peep->peeps_ex_crowded_store > 15) {
-            stepsToTake /= 3 + scenario_rand_max(5);
-        }
-        else if (peep->peeps_ex_crowded_store > 9) {
-            stepsToTake /= 2 + scenario_rand_max(3);
-        }
-        else if (peep->peeps_ex_crowded_store > 4) {
-            stepsToTake *= 2;
-            stepsToTake /= 3 + scenario_rand_max(2);
+    if (network_get_mode() == NETWORK_MODE_NONE) {
+        if (gConfigPeepsEx.peep_messy_congestion && peep->state == PEEP_STATE_WALKING) {
+            if (peep->peeps_ex_crowded_store > 15) {
+                stepsToTake /= 3 + scenario_rand_max(5);
+            }
+            else if (peep->peeps_ex_crowded_store > 9) {
+                stepsToTake /= 2 + scenario_rand_max(3);
+            }
+            else if (peep->peeps_ex_crowded_store > 4) {
+                stepsToTake *= 2;
+                stepsToTake /= 3 + scenario_rand_max(2);
+            }
         }
     }
 #endif
@@ -7992,15 +7990,10 @@ static sint32 peep_update_queue_position(rct_peep* peep, uint8 previous_action) 
     if (peep->next_in_queue == SPRITE_INDEX_NULL)
         return 0;
 
-    bool useVanillaQueuing = true;
-
 #ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
-
-    useVanillaQueuing = !gConfigPeepsEx.guest_messy_queuing;
-
+    if (network_get_mode() != NETWORK_MODE_NONE || !gConfigPeepsEx.guest_messy_queuing) {
 #endif
 
-    if (useVanillaQueuing) {
         rct_peep* peep_next = GET_PEEP(peep->next_in_queue);
 
         sint16 x_diff = abs(peep_next->x - peep->x);
@@ -8046,9 +8039,9 @@ static sint32 peep_update_queue_position(rct_peep* peep, uint8 previous_action) 
                 break;
             }
         }
+#ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
     }
     else {
-#ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
         rct_peep* peep_next = GET_PEEP(peep->next_in_queue);
         rct_ride* peep_ride = get_ride(peep->current_ride);
 
@@ -8276,8 +8269,8 @@ static sint32 peep_update_queue_position(rct_peep* peep, uint8 previous_action) 
             // We are not moving
             peep->peeps_ex_queue_wait_distance &= 0x7F;
         }
-#endif
     }
+#endif
     sint16 xy_dist, x, y;
     if (peep->action < PEEP_ACTION_NONE_1)
         peep_update_action(&x, &y, &xy_dist, peep);
@@ -8639,10 +8632,11 @@ static sint32 peep_footpath_move_forward(rct_peep* peep, sint16 x, sint16 y, rct
     // Remember for a while what the tile was like; this allows us to
     //	make the peeps walk a bit differently when congested without
     //	repeating the check
-
-    if (peep->state == PEEP_STATE_WALKING) {
-        peep->peeps_ex_crowded_store /= 2;
-        peep->peeps_ex_crowded_store += min(100, crowded / 2);
+    if (network_get_mode() == NETWORK_MODE_NONE) {
+        if (peep->state == PEEP_STATE_WALKING) {
+            peep->peeps_ex_crowded_store /= 2;
+            peep->peeps_ex_crowded_store += min(100, crowded / 2);
+        }
     }
 
 #endif
@@ -8903,13 +8897,9 @@ static sint32 peep_move_one_tile(uint8 direction, rct_peep* peep){
         return guest_surface_path_finding(peep);
     }
 
-    bool useVanillaWalking = true;
-
 #ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
-    useVanillaWalking = !gConfigPeepsEx.peep_messy_walking;
+    if (network_get_mode() != NETWORK_MODE_NONE || gConfigPeepsEx.peep_messy_walking) {
 #endif
-
-    if (useVanillaWalking) {
         peep->direction = direction;
         peep->destination_x = x + 16;
         peep->destination_y = y + 16;
@@ -8917,9 +8907,9 @@ static sint32 peep_move_one_tile(uint8 direction, rct_peep* peep){
         if (peep->state != PEEP_STATE_QUEUING) {
             peep->destination_tolerence = (peep_rand() & 7) + 2;
         }
+#ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
     }
     else {
-#ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
         sint16 tileOffsetX = peep->x & ~0xFFE0;
         sint16 tileOffsetY = peep->y & ~0xFFE0;
 
@@ -8995,9 +8985,8 @@ static sint32 peep_move_one_tile(uint8 direction, rct_peep* peep){
         if (peep->state == PEEP_STATE_QUEUING) {
             peep->destination_tolerence = 2;
         }
-#endif
-
     }
+#endif
     return 0;
 }
 
@@ -12211,7 +12200,7 @@ static bool peep_should_go_on_ride(rct_peep *peep, sint32 rideIndex, sint32 entr
 #ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
                             // Push the last peep anyway, so that he reduces his wait distance
                             //	This has no effect when messy queuing is disabled
-                            if ((lastPeepInQueue->peeps_ex_queue_wait_distance & 0x7F) > 7) {
+                            if (network_get_mode == NETWORK_MODE_NONE && (lastPeepInQueue->peeps_ex_queue_wait_distance & 0x7F) > 7) {
                                 lastPeepInQueue->peeps_ex_queue_wait_distance -= 1;
                             }
 #endif
@@ -12225,7 +12214,7 @@ static bool peep_should_go_on_ride(rct_peep *peep, sint32 rideIndex, sint32 entr
 #ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
                             // Push the last peep anyway, so that he reduces his wait distance
                             //	This has no effect when messy queuing is disabled
-                            if ((lastPeepInQueue->peeps_ex_queue_wait_distance & 0x7F) > 6) {
+                            if (network_get_mode == NETWORK_MODE_NONE && (lastPeepInQueue->peeps_ex_queue_wait_distance & 0x7F) > 6) {
                                 lastPeepInQueue->peeps_ex_queue_wait_distance -= 1;
                             }
 #endif
@@ -12402,9 +12391,11 @@ static bool peep_should_go_on_ride(rct_peep *peep, sint32 rideIndex, sint32 entr
         if (peepAtRide) {
             ride_update_popularity(ride, 1);
 #ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
-            // Set his random queue length quite low so late arrivers don't take up bizarre amounts of space
-            //	i.e., we are squishing a bit! This has no effect if messy queuing is not enabled
-            peep->peeps_ex_queue_wait_distance = 0x80 | 7;
+            if (network_get_mode == NETWORK_MODE_NONE) {
+                // Set his random queue length quite low so late arrivers don't take up bizarre amounts of space
+                //	i.e., we are squishing a bit! This has no effect if messy queuing is not enabled
+                peep->peeps_ex_queue_wait_distance = 0x80 | 7;
+            }
 #endif
         }
 
