@@ -1595,7 +1595,7 @@ static sint32 peep_update_action(sint16* x, sint16* y, sint16* xy_distance, rct_
         }
 
 #ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
-        if (network_get_mode != NETWORK_MODE_NONE || !gConfigPeepsEx.peep_allow_sidestepping) {
+        if (network_get_mode() != NETWORK_MODE_NONE || !gConfigPeepsEx.peep_allow_sidestepping) {
 #endif
             sint32 direction = 0;
             if (x_delta < y_delta) {
@@ -8159,7 +8159,8 @@ static sint32 peep_update_queue_position(rct_peep* peep, uint8 previous_action) 
         }
 
         if (allowMove) {
-            rct_peep* peep_next = peep;
+            // TODO This variable hides previous declaration, determine if this was on purpose or on accident
+            /*rct_peep**/ peep_next = peep;
 
             for (int ahead = 0; ahead <3; ahead++) {
                 if (peep_next->next_in_queue == 0xFFFF) {
@@ -8167,8 +8168,9 @@ static sint32 peep_update_queue_position(rct_peep* peep, uint8 previous_action) 
                 }
                 peep_next = GET_PEEP(peep_next->next_in_queue);
 
-                sint16 x_diff = abs(peep_next->x - peep->x);
-                sint16 y_diff = abs(peep_next->y - peep->y);
+                // TODO These variables hide previous declaration, determine if this was on purpose, or meant to be different
+                /*sint16*/ x_diff = abs(peep_next->x - peep->x);
+                /*sint16*/ y_diff = abs(peep_next->y - peep->y);
 
                 if (x_diff < y_diff) {
                     sint16 temp_x = x_diff;
@@ -8192,7 +8194,7 @@ static sint32 peep_update_queue_position(rct_peep* peep, uint8 previous_action) 
                 if (macroDesX == peep_next->x >> 5 &&
                     macroDesY == peep_next->y >> 5) {
 
-                    bool overX = false, overY = false;
+                    //bool overX = false, overY = false;
 
                     uint16 tarX = peep_next->x;
                     uint16 tarY = peep_next->y;
@@ -12200,7 +12202,7 @@ static bool peep_should_go_on_ride(rct_peep *peep, sint32 rideIndex, sint32 entr
 #ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
                             // Push the last peep anyway, so that he reduces his wait distance
                             //	This has no effect when messy queuing is disabled
-                            if (network_get_mode == NETWORK_MODE_NONE && (lastPeepInQueue->peeps_ex_queue_wait_distance & 0x7F) > 7) {
+                            if (network_get_mode() == NETWORK_MODE_NONE && (lastPeepInQueue->peeps_ex_queue_wait_distance & 0x7F) > 7) {
                                 lastPeepInQueue->peeps_ex_queue_wait_distance -= 1;
                             }
 #endif
@@ -12214,7 +12216,7 @@ static bool peep_should_go_on_ride(rct_peep *peep, sint32 rideIndex, sint32 entr
 #ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
                             // Push the last peep anyway, so that he reduces his wait distance
                             //	This has no effect when messy queuing is disabled
-                            if (network_get_mode == NETWORK_MODE_NONE && (lastPeepInQueue->peeps_ex_queue_wait_distance & 0x7F) > 6) {
+                            if (network_get_mode() == NETWORK_MODE_NONE && (lastPeepInQueue->peeps_ex_queue_wait_distance & 0x7F) > 6) {
                                 lastPeepInQueue->peeps_ex_queue_wait_distance -= 1;
                             }
 #endif
@@ -12391,7 +12393,7 @@ static bool peep_should_go_on_ride(rct_peep *peep, sint32 rideIndex, sint32 entr
         if (peepAtRide) {
             ride_update_popularity(ride, 1);
 #ifdef STOUT_PEEPS_EXPANDED_EXPERIMENT
-            if (network_get_mode == NETWORK_MODE_NONE) {
+            if (network_get_mode() == NETWORK_MODE_NONE) {
                 // Set his random queue length quite low so late arrivers don't take up bizarre amounts of space
                 //	i.e., we are squishing a bit! This has no effect if messy queuing is not enabled
                 peep->peeps_ex_queue_wait_distance = 0x80 | 7;
