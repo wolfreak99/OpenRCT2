@@ -1146,10 +1146,11 @@ static void sub_6E1F34(sint16 x, sint16 y, uint16 selected_scenery, sint16* grid
     if (type == 0 && !gCheatsDisableSupportLimits) {
         gSceneryCtrlPressed = false;
         gSceneryShiftPressed = false;
-    } else {
-        if (!gSceneryCtrlPressed) {
-            if (input_test_place_object_modifier(PLACE_OBJECT_MODIFIER_COPY_Z)) {
-                // CTRL pressed
+    }
+    else {
+        if (input_test_place_object_modifier(PLACE_OBJECT_MODIFIER_COPY_Z)) {
+            if (!gSceneryCtrlPressed) {
+                // Initial CTRL press
                 rct_map_element* map_element;
                 uint16 flags =
                     VIEWPORT_INTERACTION_MASK_TERRAIN &
@@ -1161,38 +1162,35 @@ static void sub_6E1F34(sint16 x, sint16 y, uint16 selected_scenery, sint16* grid
                 sint32 interaction_type;
                 get_map_coordinates_from_pos(x, y, flags, NULL, NULL, &interaction_type, &map_element, NULL);
 
-                if (interaction_type != VIEWPORT_INTERACTION_ITEM_NONE){
+                if (interaction_type != VIEWPORT_INTERACTION_ITEM_NONE) {
                     gSceneryCtrlPressed = true;
                     gSceneryCtrlPressZ = map_element->base_height * 8;
                 }
             }
-        } else {
-            if (!(input_test_place_object_modifier(PLACE_OBJECT_MODIFIER_COPY_Z))) {
-                // CTRL not pressed
-                gSceneryCtrlPressed = false;
-            }
+        }
+        else {
+            // CTRL released
+            gSceneryCtrlPressed = false;
         }
 
-        if (!gSceneryShiftPressed) {
-            if (input_test_place_object_modifier(PLACE_OBJECT_MODIFIER_SHIFT_Z)) {
-                // SHIFT pressed
+        if (input_test_place_object_modifier(PLACE_OBJECT_MODIFIER_SHIFT_Z)) {
+            if (!gSceneryShiftPressed) {
+                // Initial SHIFT press
                 gSceneryShiftPressed = true;
                 gSceneryShiftPressX = x;
                 gSceneryShiftPressY = y;
                 gSceneryShiftPressZOffset = 0;
             }
-        }
-        else{
-            if (input_test_place_object_modifier(PLACE_OBJECT_MODIFIER_SHIFT_Z)) {
-                // SHIFT pressed
+            else {
+                // SHIFT is being held
                 gSceneryShiftPressZOffset = (gSceneryShiftPressY - y + 4) & 0xFFF8;
-
                 x = gSceneryShiftPressX;
                 y = gSceneryShiftPressY;
-            } else {
-                // SHIFT not pressed
-                gSceneryShiftPressed = false;
             }
+        }
+        else {
+            // SHIFT released
+            gSceneryShiftPressed = false;
         }
     }
 
