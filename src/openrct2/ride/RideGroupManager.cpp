@@ -26,6 +26,7 @@ extern "C"
     #include "ride_data.h"
     #include "track.h"
     #include "track_data.h"
+    #include "../cheats.h"
 }
 
 class RideGroupManager final : public IRideGroupManager
@@ -174,7 +175,7 @@ public:
 
     bool RideGroupIsInvented(const ride_group * rideGroup) const override
     {
-        if (!ride_type_is_invented(rideGroup->track_type))
+        if (!ride_type_is_invented(rideGroup->track_type) && !gCheatsIgnoreResearchStatus)
             return false;
 
         uint8 *rideEntryIndexPtr = get_ride_entry_indices_for_ride_type(rideGroup->track_type);
@@ -183,7 +184,7 @@ public:
         {
             uint8 rideEntryIndex = *rideEntryIndexPtr++;
 
-            if (!ride_entry_is_invented(rideEntryIndex))
+            if (!ride_entry_is_invented(rideEntryIndex) && !gCheatsIgnoreResearchStatus)
                 continue;
 
             rct_ride_entry *rideEntry = get_ride_entry(rideEntryIndex);
