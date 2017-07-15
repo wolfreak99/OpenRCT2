@@ -2676,7 +2676,7 @@ static void window_ride_vehicle_mousedown(rct_window *w, rct_widgetindex widgetI
                     continue;
 
                 // Skip if vehicle type is not invented yet
-                if (!ride_entry_is_invented(rideEntryIndex) && !gCheatsIgnoreResearchStatus)
+                if (!ride_entry_is_invented(rideEntryIndex))
                     continue;
 
                 // Skip if vehicle does not belong to the same ride group

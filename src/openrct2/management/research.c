@@ -188,6 +188,11 @@ void research_finish_item(sint32 entryIndex)
 
         if (rideEntry != NULL && rideEntry != (rct_ride_entry *)-1 && base_ride_type != RIDE_TYPE_NULL)
         {
+            // because gCheatsIgnoreResearchStatus overrides ride_type_is_invented and ride_group_is_invented,
+            // the cheat must be set false temporarily.
+            bool prevCheatsIgnoreResearchStatus = gCheatsIgnoreResearchStatus;
+            gCheatsIgnoreResearchStatus = false;
+
             bool ride_group_was_invented_before = false;
             bool track_type_was_invented_before = ride_type_is_invented(base_ride_type);
             rct_string_id availabilityString;
@@ -202,6 +207,9 @@ void research_finish_item(sint32 entryIndex)
                     ride_group_was_invented_before = true;
                 }
             }
+
+            // Restore cheat back to previous state.
+            gCheatsIgnoreResearchStatus = prevCheatsIgnoreResearchStatus;
 
             ride_type_set_invented(base_ride_type);
             openrct2_assert(base_ride_type < countof(RideTypePossibleTrackConfigurations), "Invalid base_ride_type = %d", base_ride_type);
@@ -652,6 +660,8 @@ void research_insert_scenery_group_entry(uint8 entryIndex, bool researched)
 
 bool ride_type_is_invented(sint32 rideType)
 {
+    if (gCheatsIgnoreResearchStatus)
+        return true;
     sint32 quadIndex = rideType >> 5;
     sint32 bitIndex = rideType & 0x1F;
     bool invented = (gResearchedRideTypes[quadIndex] & ((uint32)1 << bitIndex));
@@ -660,6 +670,8 @@ bool ride_type_is_invented(sint32 rideType)
 
 bool ride_entry_is_invented(sint32 rideEntryIndex)
 {
+    if (gCheatsIgnoreResearchStatus)
+        return true;
     sint32 quadIndex = rideEntryIndex >> 5;
     sint32 bitIndex = rideEntryIndex & 0x1F;
     bool invented = (gResearchedRideEntries[quadIndex] & ((uint32)1 << bitIndex));
@@ -687,6 +699,8 @@ static void ride_entry_set_invented(sint32 rideEntryIndex)
 
 bool scenery_is_invented(uint16 sceneryItem)
 {
+    if (gCheatsIgnoreResearchStatus)
+        return true;
     sint32 quadIndex = sceneryItem >> 5;
     sint32 bitIndex = sceneryItem & 0x1F;
     bool invented = (gResearchedSceneryItems[quadIndex] & ((uint32)1 << bitIndex));

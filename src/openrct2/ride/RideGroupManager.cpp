@@ -175,7 +175,7 @@ public:
 
     bool RideGroupIsInvented(const ride_group * rideGroup) const override
     {
-        if (!ride_type_is_invented(rideGroup->track_type) && !gCheatsIgnoreResearchStatus)
+        if (!ride_type_is_invented(rideGroup->track_type))
             return false;
 
         uint8 *rideEntryIndexPtr = get_ride_entry_indices_for_ride_type(rideGroup->track_type);
@@ -184,7 +184,7 @@ public:
         {
             uint8 rideEntryIndex = *rideEntryIndexPtr++;
 
-            if (!ride_entry_is_invented(rideEntryIndex) && !gCheatsIgnoreResearchStatus)
+            if (!ride_entry_is_invented(rideEntryIndex))
                 continue;
 
             rct_ride_entry *rideEntry = get_ride_entry(rideEntryIndex);

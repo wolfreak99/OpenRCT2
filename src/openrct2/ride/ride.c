@@ -6010,7 +6010,7 @@ static money32 ride_create(sint32 type, sint32 subType, sint32 flags, sint32 *ou
             rideEntry = get_ride_entry(*rei);
 
             // Can happen in select-by-track-type mode
-            if (!ride_entry_is_invented(*rei) && !gCheatsIgnoreResearchStatus)
+            if (!ride_entry_is_invented(*rei))
             {
                 continue;
             }
@@ -7872,7 +7872,7 @@ static bool ride_is_vehicle_type_valid(rct_ride *ride, uint8 inputRideEntryIndex
         for (uint8 *currentRideEntryIndex = rideEntryIndexPtr; *currentRideEntryIndex != RIDE_ENTRY_INDEX_NULL; currentRideEntryIndex++) {
             uint8 rideEntryIndex = *currentRideEntryIndex;
             if (rideEntryIndex == inputRideEntryIndex) {
-                if (!ride_entry_is_invented(rideEntryIndex) && !gCheatsIgnoreResearchStatus) {
+                if (!ride_entry_is_invented(rideEntryIndex)) {
                     return false;
                 }
 
