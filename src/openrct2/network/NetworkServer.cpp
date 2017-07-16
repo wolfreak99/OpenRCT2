@@ -26,7 +26,7 @@ extern "C" {
     #include "../util/sawyercoding.h"
 }
 
-#include "NetworkChat.h"
+#include "network.h"
 
 #define ACTION_COOLDOWN_TIME_PLACE_SCENERY  20
 #define ACTION_COOLDOWN_TIME_DEMOLISH_RIDE  1000
@@ -99,6 +99,7 @@ NetworkServer::NetworkServer()
     last_tick_sent_time = 0;
     last_ping_sent_time = 0;
     client_command_handlers.resize(NETWORK_COMMAND_MAX, 0);
+    /*
     client_command_handlers[NETWORK_COMMAND_AUTH] = &Network::Client_Handle_AUTH;
     client_command_handlers[NETWORK_COMMAND_MAP] = &Network::Client_Handle_MAP;
     client_command_handlers[NETWORK_COMMAND_CHAT] = &Network::Client_Handle_CHAT;
@@ -122,6 +123,7 @@ NetworkServer::NetworkServer()
     server_command_handlers[NETWORK_COMMAND_GAMEINFO] = &Network::Server_Handle_GAMEINFO;
     server_command_handlers[NETWORK_COMMAND_TOKEN] = &Network::Server_Handle_TOKEN;
     server_command_handlers[NETWORK_COMMAND_OBJECTS] = &Network::Server_Handle_OBJECTS;
+    */
     OpenSSL_add_all_algorithms();
 }
 
@@ -1300,13 +1302,13 @@ void NetworkServer::ProcessPacket(NetworkConnection& connection, NetworkPacket& 
         case NETWORK_MODE_SERVER:
             if (server_command_handlers[command]) {
                 if (connection.AuthStatus == NETWORK_AUTH_OK || !packet.CommandRequiresAuth()) {
-                    (this->*server_command_handlers[command])(connection, packet);
+                    //(this->*server_command_handlers[command])(connection, packet);
                 }
             }
             break;
         case NETWORK_MODE_CLIENT:
             if (client_command_handlers[command]) {
-                (this->*client_command_handlers[command])(connection, packet);
+                //(this->*client_command_handlers[command])(connection, packet);
             }
             break;
         }
