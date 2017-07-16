@@ -14,8 +14,7 @@
  *****************************************************************************/
 #pragma endregion
 
-#ifndef _NETWORK_H_
-#define _NETWORK_H_
+#pragma once
 
 enum {
     NETWORK_MODE_NONE,
@@ -75,7 +74,6 @@ extern "C" {
 #include "NetworkKey.h"
 #include "NetworkPacket.h"
 #include "NetworkPlayer.h"
-#include "NetworkServer.h"
 #include "NetworkServerAdvertiser.h"
 #include "NetworkUser.h"
 #include "TcpSocket.h"
@@ -92,11 +90,11 @@ namespace OpenRCT2
     interface IPlatformEnvironment;
 }
 
-class Network
+class NetworkServer
 {
 public:
-    Network();
-    ~Network();
+    NetworkServer();
+    ~NetworkServer();
     void SetEnvironment(OpenRCT2::IPlatformEnvironment * env);
     bool Init();
     void Close();
@@ -344,5 +342,3 @@ const utf8 * network_get_server_provider_website();
 #ifdef __cplusplus
 }
 #endif // __cplusplus
-
-#endif
