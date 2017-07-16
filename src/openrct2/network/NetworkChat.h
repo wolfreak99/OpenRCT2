@@ -14,8 +14,7 @@
  *****************************************************************************/
 #pragma endregion
 
-#ifndef _NETWORK_H_
-#define _NETWORK_H_
+#pragma once
 
 enum {
     NETWORK_MODE_NONE,
@@ -71,7 +70,6 @@ extern "C" {
 #include "../core/Json.hpp"
 #include "../core/Nullable.hpp"
 #include "NetworkConnection.h"
-#include "NetworkChat.h"
 #include "NetworkGroup.h"
 #include "NetworkKey.h"
 #include "NetworkPacket.h"
@@ -92,11 +90,11 @@ namespace OpenRCT2
     interface IPlatformEnvironment;
 }
 
-class Network
+class NetworkChat
 {
 public:
-    Network();
-    ~Network();
+    NetworkChat();
+    ~NetworkChat();
     void SetEnvironment(OpenRCT2::IPlatformEnvironment * env);
     bool Init();
     void Close();
@@ -344,5 +342,3 @@ const utf8 * network_get_server_provider_website();
 #ifdef __cplusplus
 }
 #endif // __cplusplus
-
-#endif
