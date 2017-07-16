@@ -84,6 +84,7 @@ enum {
 };
 
 struct ObjectRepositoryItem;
+class Network;
 
 namespace OpenRCT2
 {
