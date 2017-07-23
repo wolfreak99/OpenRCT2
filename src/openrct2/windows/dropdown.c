@@ -83,6 +83,8 @@ void dropdown_set_disabled(sint32 index, bool value)
     }
 }
 
+static void HelloWorld();
+
 static void window_dropdown_paint(rct_window *w, rct_drawpixelinfo *dpi);
 
 static rct_window_event_list window_dropdown_events = {
