@@ -5882,21 +5882,33 @@ static void window_ride_income_decrease_primary_price(rct_window *w)
     window_ride_income_set_primary_price(w, price);
 }
 
-/**
- *
- *  rct2: 0x006AE269
- */
-static void window_ride_income_increase_secondary_price(rct_window *w)
+static money16 window_ride_income_get_secondary_price(rct_window *w)
 {
     rct_ride *ride;
 
     ride = get_ride(w->number);
 
     money16 price = ride->price_secondary;
+    return price;
+}
+
+static void window_ride_income_set_secondary_price(rct_window *w, money16 price)
+{
+    game_do_command(0, GAME_COMMAND_FLAG_APPLY, 0, (w->number & 0x00FF) | 0x0100, GAME_COMMAND_SET_RIDE_PRICE, price, 0);
+}
+
+/**
+ *
+ *  rct2: 0x006AE269
+ */
+static void window_ride_income_increase_secondary_price(rct_window *w)
+{
+    money16 price = window_ride_income_get_secondary_price(w);
+
     if (price < MONEY(20, 00))
         price++;
 
-    game_do_command(0, 1, 0, (w->number & 0x00FF) | 0x0100, GAME_COMMAND_SET_RIDE_PRICE, price, 0);
+    window_ride_income_set_secondary_price(w, price);
 }
 
 /**
@@ -5905,15 +5917,12 @@ static void window_ride_income_increase_secondary_price(rct_window *w)
  */
 static void window_ride_income_decrease_secondary_price(rct_window *w)
 {
-    rct_ride *ride;
-
-    ride = get_ride(w->number);
-
-    money16 price = ride->price_secondary;
+    money16 price = window_ride_income_get_secondary_price(w);
+    
     if (price > MONEY(0, 00))
         price--;
 
-    game_do_command(0, 1, 0, (w->number & 0x00FF) | 0x0100, GAME_COMMAND_SET_RIDE_PRICE, price, 0);
+    window_ride_income_set_secondary_price(w, price);
 }
 
 /**
