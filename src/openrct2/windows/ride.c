@@ -479,9 +479,11 @@ const uint64 window_ride_page_enabled_widgets[] = {
         (1ULL << WIDX_GRAPH_VERTICAL) |
         (1ULL << WIDX_GRAPH_LATERAL),
     MAIN_RIDE_ENABLED_WIDGETS |
+        (1ULL << WIDX_PRIMARY_PRICE) |
         (1ULL << WIDX_PRIMARY_PRICE_INCREASE) |
         (1ULL << WIDX_PRIMARY_PRICE_DECREASE) |
         (1ULL << WIDX_PRIMARY_PRICE_SAME_THROUGHOUT_PARK) |
+        (1ULL << WIDX_SECONDARY_PRICE) |
         (1ULL << WIDX_SECONDARY_PRICE_INCREASE) |
         (1ULL << WIDX_SECONDARY_PRICE_DECREASE) |
         (1ULL << WIDX_SECONDARY_PRICE_SAME_THROUGHOUT_PARK),
@@ -5742,6 +5744,8 @@ static void window_ride_graphs_scrollpaint(rct_window *w, rct_drawpixelinfo *dpi
 
 #pragma region Income
 
+static utf8 _moneyInputText[MONEY_STRING_MAXLENGTH];
+
 static void update_same_price_throughout_flags(uint32 shop_item)
 {
     uint32 newFlags;
@@ -5947,9 +5951,19 @@ static void window_ride_income_mouseup(rct_window *w, rct_widgetindex widgetInde
     case WIDX_TAB_10:
         window_ride_set_page(w, widgetIndex - WIDX_TAB_1);
         break;
+    case WIDX_PRIMARY_PRICE:{
+        money32 price = (money32)window_ride_income_get_primary_price(w);
+        money_to_string(price, _moneyInputText, MONEY_STRING_MAXLENGTH);
+        window_text_input_raw_open(w, WIDX_PRIMARY_PRICE, STR_ENTER_NEW_VALUE, STR_ENTER_NEW_VALUE, _moneyInputText, MONEY_STRING_MAXLENGTH);
+    }break;
     case WIDX_PRIMARY_PRICE_SAME_THROUGHOUT_PARK:
         window_ride_income_toggle_primary_price(w);
         break;
+    case WIDX_SECONDARY_PRICE:{
+        money32 price = (money32)window_ride_income_get_secondary_price(w);
+        money_to_string(price, _moneyInputText, MONEY_STRING_MAXLENGTH);
+        window_text_input_raw_open(w, WIDX_PRIMARY_PRICE, STR_ENTER_NEW_VALUE, STR_ENTER_NEW_VALUE, _moneyInputText, MONEY_STRING_MAXLENGTH);
+    }break;
     case WIDX_SECONDARY_PRICE_SAME_THROUGHOUT_PARK:
         window_ride_income_toggle_secondary_price(w);
         break;
