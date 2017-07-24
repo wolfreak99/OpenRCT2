@@ -5829,7 +5829,9 @@ static void window_ride_income_toggle_secondary_price(rct_window *w)
     game_do_command(0, 1, 0, (1 << 8) | w->number, GAME_COMMAND_SET_RIDE_PRICE, price, 0);
 }
 
-static money16 window_ride_income_get_primary_price(rct_window *w)
+// Returns false if price is not modifiable (due to "Pay for park entry/free rides" etc),
+// Otherwise returns true and outputs price to 'price'
+static bool window_ride_income_try_get_primary_price(rct_window *w, money16 *price)
 {
     rct_ride *ride;
     rct_ride_entry *ride_type;
@@ -5839,19 +5841,18 @@ static money16 window_ride_income_get_primary_price(rct_window *w)
 
     if ((gParkFlags & PARK_FLAGS_PARK_FREE_ENTRY) == 0) {
         if (ride->type != RIDE_TYPE_TOILETS && ride_type->shop_item == 0xFF) {
-            if (!gCheatsUnlockAllPrices)
-                return MONEY16_UNDEFINED;
+            if (!gCheatsUnlockAllPrices) {
+                return false;
+            }
         }
     }
 
-    money16 price = ride->price;
-    return price;
+    *price = ride->price;
+    return true;
 }
 
 static void window_ride_income_set_primary_price(rct_window *w, money16 price)
 {
-    assert(price != MONEY16_UNDEFINED);
-
     game_do_command(0, GAME_COMMAND_FLAG_APPLY, 0, w->number, GAME_COMMAND_SET_RIDE_PRICE, price, 0);
 }
 
@@ -5861,10 +5862,11 @@ static void window_ride_income_set_primary_price(rct_window *w, money16 price)
  */
 static void window_ride_income_increase_primary_price(rct_window *w)
 {
-    money16 price = window_ride_income_get_primary_price(w);
-
-    if (price == MONEY16_UNDEFINED)
+    money16 price;
+    if (!window_ride_income_try_get_primary_price(w, &price)) {
         return;
+    }
+
     if (price < MONEY(20, 00))
         price++;
 
@@ -5877,10 +5879,11 @@ static void window_ride_income_increase_primary_price(rct_window *w)
  */
 static void window_ride_income_decrease_primary_price(rct_window *w)
 {
-    money16 price = window_ride_income_get_primary_price(w);
-
-    if (price == MONEY16_UNDEFINED)
+    money16 price;
+    if (!window_ride_income_try_get_primary_price(w, &price)) {
         return;
+    }
+
     if (price > MONEY(0, 00))
         price--;
 
@@ -5953,16 +5956,26 @@ static void window_ride_income_mouseup(rct_window *w, rct_widgetindex widgetInde
         window_ride_set_page(w, widgetIndex - WIDX_TAB_1);
         break;
     case WIDX_PRIMARY_PRICE:{
-        money32 price = (money32)window_ride_income_get_primary_price(w);
-        money_to_string(price, _moneyInputText, MONEY_STRING_MAXLENGTH);
+        money16 price;
+        if (!window_ride_income_try_get_primary_price(w, &price)) {
+            return;
+        }
+        
+        money32 price32 = (money32)price;
+        assert(price32 == price);
+        
+        money_to_string(price32, _moneyInputText, MONEY_STRING_MAXLENGTH);
         window_text_input_raw_open(w, WIDX_PRIMARY_PRICE, STR_ENTER_NEW_VALUE, STR_ENTER_NEW_VALUE, _moneyInputText, MONEY_STRING_MAXLENGTH);
     }break;
     case WIDX_PRIMARY_PRICE_SAME_THROUGHOUT_PARK:
         window_ride_income_toggle_primary_price(w);
         break;
     case WIDX_SECONDARY_PRICE:{
-        money32 price = (money32)window_ride_income_get_secondary_price(w);
-        money_to_string(price, _moneyInputText, MONEY_STRING_MAXLENGTH);
+        money16 price = (money16)window_ride_income_get_secondary_price(w);
+        money32 price32 = (money32)price;
+        assert(price32 == price);
+        
+        money_to_string(price32, _moneyInputText, MONEY_STRING_MAXLENGTH);
         window_text_input_raw_open(w, WIDX_PRIMARY_PRICE, STR_ENTER_NEW_VALUE, STR_ENTER_NEW_VALUE, _moneyInputText, MONEY_STRING_MAXLENGTH);
     }break;
     case WIDX_SECONDARY_PRICE_SAME_THROUGHOUT_PARK:
