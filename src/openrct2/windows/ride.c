@@ -5824,11 +5824,7 @@ static void window_ride_income_toggle_secondary_price(rct_window *w)
     game_do_command(0, 1, 0, (1 << 8) | w->number, GAME_COMMAND_SET_RIDE_PRICE, price, 0);
 }
 
-/**
- *
- *  rct2: 0x006AE1E4
- */
-static void window_ride_income_increase_primary_price(rct_window *w)
+static money16 window_ride_income_get_primary_price(rct_window *w)
 {
     rct_ride *ride;
     rct_ride_entry *ride_type;
@@ -5839,14 +5835,35 @@ static void window_ride_income_increase_primary_price(rct_window *w)
     if ((gParkFlags & PARK_FLAGS_PARK_FREE_ENTRY) == 0) {
         if (ride->type != RIDE_TYPE_TOILETS && ride_type->shop_item == 0xFF) {
             if (!gCheatsUnlockAllPrices)
-                return;
+                return MONEY16_UNDEFINED;
         }
     }
+
     money16 price = ride->price;
+    return price;
+}
+
+static void window_ride_income_set_primary_price(rct_window *w, money16 price)
+{
+    assert(price != MONEY16_UNDEFINED);
+
+    game_do_command(0, GAME_COMMAND_FLAG_APPLY, 0, w->number, GAME_COMMAND_SET_RIDE_PRICE, price, 0);
+}
+
+/**
+ *
+ *  rct2: 0x006AE1E4
+ */
+static void window_ride_income_increase_primary_price(rct_window *w)
+{
+    money16 price = window_ride_income_get_primary_price(w);
+
+    if (price == MONEY16_UNDEFINED)
+        return;
     if (price < MONEY(20, 00))
         price++;
 
-    game_do_command(0, 1, 0, w->number, GAME_COMMAND_SET_RIDE_PRICE, price, 0);
+    window_ride_income_set_primary_price(w, price);
 }
 
 /**
@@ -5855,23 +5872,14 @@ static void window_ride_income_increase_primary_price(rct_window *w)
  */
 static void window_ride_income_decrease_primary_price(rct_window *w)
 {
-    rct_ride *ride;
-    rct_ride_entry *ride_type;
+    money16 price = window_ride_income_get_primary_price(w);
 
-    ride = get_ride(w->number);
-    ride_type = get_ride_entry(ride->subtype);
-
-    if ((gParkFlags & PARK_FLAGS_PARK_FREE_ENTRY) == 0) {
-        if (ride->type != RIDE_TYPE_TOILETS && ride_type->shop_item == 0xFF) {
-            if (!gCheatsUnlockAllPrices)
-                return;
-        }
-    }
-    money16 price = ride->price;
+    if (price == MONEY16_UNDEFINED)
+        return;
     if (price > MONEY(0, 00))
         price--;
 
-    game_do_command(0, 1, 0, w->number, GAME_COMMAND_SET_RIDE_PRICE, price, 0);
+    window_ride_income_set_primary_price(w, price);
 }
 
 /**

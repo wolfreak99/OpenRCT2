@@ -177,6 +177,7 @@ typedef fixed64_1dp money64;
 
 #define MONEY_FREE                      MONEY(0,00)
 #define MONEY32_UNDEFINED               ((money32)0x80000000)
+#define MONEY16_UNDEFINED               ((money16)0x8000)
 
 typedef void (EMPTY_ARGS_VOID_POINTER)();
 typedef uint16 rct_string_id;
