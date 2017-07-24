@@ -607,6 +607,7 @@ static void window_ride_income_mouseup(rct_window *w, rct_widgetindex widgetInde
 static void window_ride_income_resize(rct_window *w);
 static void window_ride_income_mousedown(rct_window *w, rct_widgetindex widgetIndex, rct_widget *widget);
 static void window_ride_income_update(rct_window *w);
+static void window_ride_income_textinput(rct_window *w, rct_widgetindex widgetIndex, char *text);
 static void window_ride_income_invalidate(rct_window *w);
 static void window_ride_income_paint(rct_window *w, rct_drawpixelinfo *dpi);
 
@@ -896,7 +897,7 @@ static rct_window_event_list window_ride_income_events = {
     NULL,
     NULL,
     NULL,
-    NULL,
+    window_ride_income_textinput,
     NULL,
     NULL,
     NULL,
@@ -6017,6 +6018,28 @@ static void window_ride_income_update(rct_window *w)
     if (ride->window_invalidate_flags & RIDE_INVALIDATE_RIDE_INCOME) {
         ride->window_invalidate_flags &= ~RIDE_INVALIDATE_RIDE_INCOME;
         window_invalidate(w);
+    }
+}
+
+static void window_ride_income_textinput(rct_window *w, rct_widgetindex widgetIndex, char *text)
+{
+    if ((widgetIndex != WIDX_PRIMARY_PRICE && widgetIndex != WIDX_SECONDARY_PRICE) || text == NULL)
+        return;
+
+    money32 price = string_to_money(text);
+    if (price == MONEY32_UNDEFINED) {
+        return;
+    }
+    price = clamp(MONEY(0, 00), price, MONEY(20, 00));
+
+    money16 price16 = (money16)price;
+    assert(price16 == price);
+
+    if (widgetIndex == WIDX_PRIMARY_PRICE) {
+        window_ride_income_set_primary_price(w, price16);
+    }
+    else {
+        window_ride_income_set_secondary_price(w, price16);
     }
 }
 
