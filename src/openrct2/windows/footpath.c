@@ -1152,7 +1152,7 @@ static bool footpath_select_default()
 {
     // Select first available footpath
     sint32 footpathId = -1;
-    for (sint32 i = 0; i < object_entry_group_counts[OBJECT_TYPE_PATHS]; i++) {
+    for (sint32 i = 0; i < object_entry_group_ext_counts[OBJECT_TYPE_PATHS]; i++) {
         rct_footpath_entry *pathEntry = get_footpath_entry(i);
         if (pathEntry != (rct_footpath_entry*)-1) {
             footpathId = i;

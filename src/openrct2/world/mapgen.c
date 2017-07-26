@@ -270,7 +270,7 @@ static void mapgen_place_trees()
     sint32 *desertTreeIds = (sint32*)malloc(countof(DesertTrees) * sizeof(sint32));
     sint32 *snowTreeIds = (sint32*)malloc(countof(SnowTrees) * sizeof(sint32));
 
-    for (sint32 i = 0; i < object_entry_group_counts[OBJECT_TYPE_SMALL_SCENERY]; i++) {
+    for (sint32 i = 0; i < object_entry_group_ext_counts[OBJECT_TYPE_SMALL_SCENERY]; i++) {
         rct_scenery_entry *sceneryEntry = get_small_scenery_entry(i);
         rct_object_entry_extended *entry = &object_entry_groups[OBJECT_TYPE_SMALL_SCENERY].entries[i];
 

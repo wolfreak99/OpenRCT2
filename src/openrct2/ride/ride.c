@@ -235,7 +235,7 @@ rct_ride *get_ride(sint32 index)
 
 rct_ride_entry *get_ride_entry(sint32 index)
 {
-    if (index < 0 || index >= object_entry_group_counts[OBJECT_TYPE_RIDE])
+    if (index < 0 || index >= object_entry_group_ext_counts[OBJECT_TYPE_RIDE])
     {
         log_error("invalid index %d for ride type", index);
         return NULL;
@@ -245,7 +245,7 @@ rct_ride_entry *get_ride_entry(sint32 index)
 
 void get_ride_entry_name(char *name, sint32 index)
 {
-    if (index < 0 || index >= object_entry_group_counts[OBJECT_TYPE_RIDE])
+    if (index < 0 || index >= object_entry_group_ext_counts[OBJECT_TYPE_RIDE])
     {
         log_error("invalid index %d for ride type", index);
         return;

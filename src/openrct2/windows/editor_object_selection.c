@@ -550,13 +550,13 @@ static void setup_track_designer_objects()
 static void setup_in_use_selection_flags()
 {
     for (uint8 object_type = 0; object_type < 11; object_type++){
-        for (uint16 i = 0; i < object_entry_group_counts[object_type]; i++){
+        for (uint16 i = 0; i < object_entry_group_ext_counts[object_type]; i++){
             gEditorSelectedObjects[object_type][i] = 0;
         }
     }
 
     for (uint8 object_type = 0; object_type < 11; object_type++){
-        for (uint16 i = 0; i < object_entry_group_counts[object_type]; i++){
+        for (uint16 i = 0; i < object_entry_group_ext_counts[object_type]; i++){
             if (object_entry_groups[object_type].chunks[i] != (uint8*)-1) {
                 gEditorSelectedObjects[object_type][i] |= (1 << 1);
             }
@@ -577,7 +577,7 @@ static void setup_in_use_selection_flags()
         case MAP_ELEMENT_TYPE_PATH:
             type = iter.element->properties.path.type;
             type >>= 4;
-            assert(type < object_entry_group_counts[OBJECT_TYPE_PATHS]);
+            assert(type < object_entry_group_ext_counts[OBJECT_TYPE_PATHS]);
             gEditorSelectedObjects[OBJECT_TYPE_PATHS][type] |= (1 << 0);
 
             if (footpath_element_has_path_scenery(iter.element)) {
@@ -587,7 +587,7 @@ static void setup_in_use_selection_flags()
             break;
         case MAP_ELEMENT_TYPE_SCENERY:
             type = iter.element->properties.scenery.type;
-            assert(type < object_entry_group_counts[OBJECT_TYPE_SMALL_SCENERY]);
+            assert(type < object_entry_group_ext_counts[OBJECT_TYPE_SMALL_SCENERY]);
             gEditorSelectedObjects[OBJECT_TYPE_SMALL_SCENERY][type] |= (1 << 0);
             break;
         case MAP_ELEMENT_TYPE_ENTRANCE:
@@ -597,23 +597,23 @@ static void setup_in_use_selection_flags()
             gEditorSelectedObjects[OBJECT_TYPE_PARK_ENTRANCE][0] |= (1 << 0);
 
             type = iter.element->properties.entrance.path_type;
-            assert(type < object_entry_group_counts[OBJECT_TYPE_PATHS]);
+            assert(type < object_entry_group_ext_counts[OBJECT_TYPE_PATHS]);
             gEditorSelectedObjects[OBJECT_TYPE_PATHS][type] |= (1 << 0);
             break;
         case MAP_ELEMENT_TYPE_WALL:
             type = iter.element->properties.wall.type;
-            assert(type < object_entry_group_counts[OBJECT_TYPE_WALLS]);
+            assert(type < object_entry_group_ext_counts[OBJECT_TYPE_WALLS]);
             gEditorSelectedObjects[OBJECT_TYPE_WALLS][type] |= (1 << 0);
             break;
         case MAP_ELEMENT_TYPE_SCENERY_MULTIPLE:
             type = iter.element->properties.scenerymultiple.type & 0x3FF;
-            assert(type < object_entry_group_counts[OBJECT_TYPE_LARGE_SCENERY]);
+            assert(type < object_entry_group_ext_counts[OBJECT_TYPE_LARGE_SCENERY]);
             gEditorSelectedObjects[OBJECT_TYPE_LARGE_SCENERY][type] |= (1 << 0);
             break;
         case MAP_ELEMENT_TYPE_BANNER:
             banner = &gBanners[iter.element->properties.banner.index];
             type = banner->type;
-            assert(type < object_entry_group_counts[OBJECT_TYPE_BANNERS]);
+            assert(type < object_entry_group_ext_counts[OBJECT_TYPE_BANNERS]);
             gEditorSelectedObjects[OBJECT_TYPE_BANNERS][type] |= (1 << 0);
             break;
         }
@@ -1315,7 +1315,7 @@ static void window_editor_object_selection_paint(rct_window *w, rct_drawpixelinf
         y = w->y + w->height - 13;
 
         sint32 numSelected = _numSelectedObjectsForType[w->selected_tab];
-        sint32 totalSelectable = object_entry_group_counts[w->selected_tab];
+        sint32 totalSelectable = object_entry_group_ext_counts[w->selected_tab];
         if (gScreenFlags & SCREEN_FLAGS_TRACK_DESIGNER)
             totalSelectable = 4;
 
@@ -1629,7 +1629,7 @@ static sint32 window_editor_object_selection_select_object(uint8 bh, sint32 flag
         }
 
         uint8 objectType = item->ObjectEntry.flags & 0xF;
-        uint16 maxObjects = object_entry_group_counts[objectType];
+        uint16 maxObjects = object_entry_group_ext_counts[objectType];
         if (gScreenFlags & SCREEN_FLAGS_TRACK_DESIGNER) {
             maxObjects = 4;
         }

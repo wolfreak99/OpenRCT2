@@ -180,7 +180,7 @@ static void research_rides_setup(){
     // Reset all objects to not required
     for (uint8 object_type = OBJECT_TYPE_RIDE; object_type < 11; object_type++){
         uint8* in_use = gEditorSelectedObjects[object_type];
-        for (uint8 num_objects = object_entry_group_counts[object_type]; num_objects != 0; num_objects--){
+        for (uint8 num_objects = object_entry_group_ext_counts[object_type]; num_objects != 0; num_objects--){
             *in_use++ = 0;
         }
     }
@@ -208,7 +208,7 @@ static void research_rides_setup(){
         bool master_found = false;
         if (!(ride_entry->flags & RIDE_ENTRY_FLAG_SEPARATE_RIDE)){
 
-            for (uint8 rideType = 0; rideType < object_entry_group_counts[OBJECT_TYPE_RIDE]; rideType++){
+            for (uint8 rideType = 0; rideType < object_entry_group_ext_counts[OBJECT_TYPE_RIDE]; rideType++){
                 rct_ride_entry* master_ride = get_ride_entry(rideType);
                 if (master_ride == NULL || (intptr_t)master_ride == -1)
                     continue;

@@ -1159,12 +1159,12 @@ static sint32 cc_object_count(const utf8 **argv, sint32 argc) {
     for (sint32 i = 0; i < 10; i++) {
 
         sint32 entryGroupIndex = 0;
-        for (; entryGroupIndex < object_entry_group_counts[i]; entryGroupIndex++){
+        for (; entryGroupIndex < object_entry_group_ext_counts[i]; entryGroupIndex++){
             if (object_entry_groups[i].chunks[entryGroupIndex] == (uint8*)-1){
                 break;
             }
         }
-        console_printf("%s: %d/%d", object_type_names[i], entryGroupIndex, object_entry_group_counts[i]);
+        console_printf("%s: %d/%d", object_type_names[i], entryGroupIndex, object_entry_group_ext_counts[i]);
     }
 
     return 0;

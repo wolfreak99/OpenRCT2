@@ -526,7 +526,7 @@ private:
                         EntryList * entries = GetEntryList(objectType);
 
                         // Check if there are spare entries available
-                        size_t maxEntries = (size_t)object_entry_group_counts[objectType];
+                        size_t maxEntries = (size_t)object_entry_group_ext_counts[objectType];
                         if (entries != nullptr && entries->GetCount() < maxEntries)
                         {
                             entries->GetOrAddEntry(objectName);

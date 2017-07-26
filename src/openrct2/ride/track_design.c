@@ -624,7 +624,7 @@ static sint32 track_design_place_scenery(rct_td6_scenery_element *scenery_start,
 
                     entry_index = 0;
                     for (rct_footpath_entry *path = get_footpath_entry(0);
-                        entry_index < object_entry_group_counts[OBJECT_TYPE_PATHS];
+                        entry_index < object_entry_group_ext_counts[OBJECT_TYPE_PATHS];
                         path = get_footpath_entry(entry_index), entry_index++
                     ) {
                         if (path == (rct_footpath_entry*)-1) {
@@ -635,7 +635,7 @@ static sint32 track_design_place_scenery(rct_td6_scenery_element *scenery_start,
                         }
                     }
 
-                    if (entry_index == object_entry_group_counts[OBJECT_TYPE_PATHS]) {
+                    if (entry_index == object_entry_group_ext_counts[OBJECT_TYPE_PATHS]) {
                         entry_type = 0xFF;
                     }
                 }
@@ -737,7 +737,7 @@ static sint32 track_design_place_scenery(rct_td6_scenery_element *scenery_start,
 
                     entry_index = 0;
                     for (rct_footpath_entry* path = get_footpath_entry(0);
-                        entry_index < object_entry_group_counts[OBJECT_TYPE_PATHS];
+                        entry_index < object_entry_group_ext_counts[OBJECT_TYPE_PATHS];
                         path = get_footpath_entry(entry_index), entry_index++){
 
                         if (path == (rct_footpath_entry*)-1)
@@ -746,7 +746,7 @@ static sint32 track_design_place_scenery(rct_td6_scenery_element *scenery_start,
                             continue;
                     }
 
-                    if (entry_index == object_entry_group_counts[OBJECT_TYPE_PATHS]){
+                    if (entry_index == object_entry_group_ext_counts[OBJECT_TYPE_PATHS]){
                         _trackDesignPlaceStateSceneryUnavailable = true;
                         continue;
                     }

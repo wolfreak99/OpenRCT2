@@ -255,7 +255,7 @@ private:
         if (_loadedObjects != nullptr)
         {
             sint32 firstIndex = GetIndexFromTypeEntry(objectType, 0);
-            sint32 endIndex = firstIndex + object_entry_group_counts[objectType];
+            sint32 endIndex = firstIndex + object_entry_group_ext_counts[objectType];
             for (sint32 i = firstIndex; i < endIndex; i++)
             {
                 if (_loadedObjects[i] == nullptr)
@@ -600,7 +600,7 @@ private:
         sint32 result = 0;
         for (uint8 i = 0; i < objectType; i++)
         {
-            result += object_entry_group_counts[i];
+            result += object_entry_group_ext_counts[i];
         }
         result += entryIndex;
         return result;
