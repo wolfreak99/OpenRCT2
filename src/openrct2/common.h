@@ -197,6 +197,12 @@ typedef uint16 rct_string_id;
 #define NO_RCT2 1
 #endif
 
+#ifndef RAISED_LIMITS
+#if defined(DEBUG)
+#define RAISED_LIMITS
+#endif
+#endif
+
 #if defined(__LP64__) || defined(_WIN64)
     #define PLATFORM_64BIT
 #else

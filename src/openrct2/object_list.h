@@ -7,19 +7,59 @@
 #include "world/footpath.h"
 #include "world/scenery.h"
 #include "world/water.h"
+#include "common.h"
+
+#define OBJECT_ENTRY_GROUP_COUNT_RIDES         128
+#define OBJECT_ENTRY_GROUP_COUNT_SMALL_SCENERY 252
+#define OBJECT_ENTRY_GROUP_COUNT_LARGE_SCENERY 128
+#define OBJECT_ENTRY_GROUP_COUNT_WALLS         128
+#define OBJECT_ENTRY_GROUP_COUNT_BANNERS       128
+#define OBJECT_ENTRY_GROUP_COUNT_PATHS         16
+#define OBJECT_ENTRY_GROUP_COUNT_PATH_BITS     15
+#define OBJECT_ENTRY_GROUP_COUNT_SCENERY_SETS  19
+#define OBJECT_ENTRY_GROUP_COUNT_PARK_ENTRANCE 1
+#define OBJECT_ENTRY_GROUP_COUNT_WATER         1
+#define OBJECT_ENTRY_GROUP_COUNT_SCENARIO_TEXT 1
+
+#if defined(NO_RCT2) && defined(RAISED_LIMITS)
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_RIDES         320
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_SMALL_SCENERY 320
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_LARGE_SCENERY 320
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_WALLS         320
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_BANNERS       320
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_PATHS         320
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_PATH_BITS     320
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_SCENERY_SETS  320
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_PARK_ENTRANCE 1
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_WATER         1
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_SCENARIO_TEXT 1
+#else
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_RIDES         OBJECT_ENTRY_GROUP_COUNT_RIDES
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_SMALL_SCENERY OBJECT_ENTRY_GROUP_COUNT_SMALL_SCENERY
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_LARGE_SCENERY OBJECT_ENTRY_GROUP_COUNT_LARGE_SCENERY
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_WALLS         OBJECT_ENTRY_GROUP_COUNT_WALLS
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_BANNERS       OBJECT_ENTRY_GROUP_COUNT_BANNERS
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_PATHS         OBJECT_ENTRY_GROUP_COUNT_PATHS
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_PATH_BITS     OBJECT_ENTRY_GROUP_COUNT_PATH_BITS
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_SCENERY_SETS  OBJECT_ENTRY_GROUP_COUNT_SCENERY_SETS
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_PARK_ENTRANCE OBJECT_ENTRY_GROUP_COUNT_PARK_ENTRANCE
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_WATER         OBJECT_ENTRY_GROUP_COUNT_WATER
+#define OBJECT_ENTRY_GROUP_EXT_COUNT_SCENARIO_TEXT OBJECT_ENTRY_GROUP_COUNT_SCENARIO_TEXT
+#endif
+
 
 #ifdef NO_RCT2
-    extern rct_ride_entry               *gRideEntries[128];
-    extern rct_small_scenery_entry      *gSmallSceneryEntries[252];
-    extern rct_large_scenery_entry      *gLargeSceneryEntries[128];
-    extern rct_wall_scenery_entry       *gWallSceneryEntries[128];
-    extern rct_banner                   *gBannerSceneryEntries[32];
-    extern rct_footpath_entry           *gFootpathEntries[16];
-    extern rct_path_bit_scenery_entry   *gFootpathAdditionEntries[15];
-    extern rct_scenery_set_entry        *gSceneryGroupEntries[19];
-    extern rct_entrance_type            *gParkEntranceEntries[1];
-    extern rct_water_type               *gWaterEntries[1];
-    extern rct_stex_entry               *gStexEntries[1];
+    extern rct_ride_entry               *gRideEntries[OBJECT_ENTRY_GROUP_EXT_COUNT_RIDES];
+    extern rct_small_scenery_entry      *gSmallSceneryEntries[OBJECT_ENTRY_GROUP_EXT_COUNT_SMALL_SCENERY];
+    extern rct_large_scenery_entry      *gLargeSceneryEntries[OBJECT_ENTRY_GROUP_EXT_COUNT_LARGE_SCENERY];
+    extern rct_wall_scenery_entry       *gWallSceneryEntries[OBJECT_ENTRY_GROUP_EXT_COUNT_WALLS];
+    extern rct_banner                   *gBannerSceneryEntries[OBJECT_ENTRY_GROUP_EXT_COUNT_BANNERS];
+    extern rct_footpath_entry           *gFootpathEntries[OBJECT_ENTRY_GROUP_EXT_COUNT_PATHS];
+    extern rct_path_bit_scenery_entry   *gFootpathAdditionEntries[OBJECT_ENTRY_GROUP_EXT_COUNT_PATH_BITS];
+    extern rct_scenery_set_entry        *gSceneryGroupEntries[OBJECT_ENTRY_GROUP_EXT_COUNT_SCENERY_SETS];
+    extern rct_entrance_type            *gParkEntranceEntries[OBJECT_ENTRY_GROUP_EXT_COUNT_PARK_ENTRANCE];
+    extern rct_water_type               *gWaterEntries[OBJECT_ENTRY_GROUP_EXT_COUNT_WATER];
+    extern rct_stex_entry               *gStexEntries[OBJECT_ENTRY_GROUP_EXT_COUNT_SCENARIO_TEXT];
 #else
 
 

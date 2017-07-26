@@ -89,6 +89,7 @@ typedef struct rct_object_entry_extended {
 assert_struct_size(rct_object_entry_extended, 0x14);
 
 extern sint32 object_entry_group_counts[];
+extern sint32 object_entry_group_ext_counts[];
 extern sint32 object_entry_group_encoding[];
 
 typedef struct rct_object_entry_group {
