@@ -46,6 +46,7 @@ static uint32 chat_history_get_time(uint32 index);
 static void chat_clear_input();
 
 void chat_handle_hover_msg(char* msg, sint32 msgIndex, const CursorState* curState, sint32 rMouseX, sint32 rMouseY);
+sint32 chat_string_wrapped_get_height_ext(void *args, sint32 width, sint32 *numLines, sint32 *lineHeight);
 
 void chat_open()
 {
@@ -93,11 +94,6 @@ void debug_ui_box_hide()
     debug_ui_box_show = false;
 }
 
-// TODO remove these lines once stringHeight is properly working
-bool subtract_lineY_by_stringHeight     = true;
-bool compare_mouseY_to_stringHeight     = true;
-bool adjust_debugUiBoxY_by_stringHeight = true;
-
 void chat_update()
 {
     // Flash the caret
@@ -107,8 +103,7 @@ void chat_update()
     if (!input_test_flag(INPUT_FLAG_5))
     {
         char* inputLine = _chatCurrentLine;
-        // TODO the stringHeights need some work on for multiple lines.
-        sint32 stringHeight = chat_string_wrapped_get_height((void*)&inputLine, _chatWidth - 10) - 5;
+        sint32 stringHeight = chat_string_wrapped_get_height((void*)&inputLine, _chatWidth - 10) + 5;
 
         sint32 y = _chatBottom - stringHeight - 15;
 
@@ -129,7 +124,8 @@ void chat_update()
         if (mX > _chatLeft && mX < _chatRight && mY > _chatTop && mY < _chatBottom) {
             debug_mouse_x = mX;
             debug_mouse_y = mY;
-            for (sint32 i = 0; i < CHAT_HISTORY_SIZE; i++, y -= (subtract_lineY_by_stringHeight ? stringHeight : 15)) {
+            y -= 2; // Shift Y up a hair, that way boundary won't ride exactly on top of text
+            for (sint32 i = 0; i < CHAT_HISTORY_SIZE; i++, y -= stringHeight) {
                 uint32 expireTime = chat_history_get_time(i) + 10000;
                 if (!gChatOpen && platform_get_ticks() > expireTime) {
                     break;
@@ -139,12 +135,13 @@ void chat_update()
                 char* lineCh = lineBuffer;
                 safe_strcpy(lineBuffer, chat_history_get(i), CHAT_INPUT_SIZE + 10);
 
-                // TODO the stringHeights need some work on for multiple lines.
                 stringHeight = chat_string_wrapped_get_height((void*)&lineCh, _chatWidth - 10) + 5;
-
-                if (mY > y && mY - (compare_mouseY_to_stringHeight ? stringHeight : 15) < y && !str_is_null_or_empty(lineCh)) {
-                    debug_ui_box_set(_chatLeft, y, _chatRight, y + (adjust_debugUiBoxY_by_stringHeight ? stringHeight : 15));
-                    chat_handle_hover_msg(lineCh, i, cursorState, mX - _chatLeft, mY - y);
+                // If a message has more than 1 line, y is shifted up
+                sint32 shiftedY = y - (stringHeight > 15 ? (stringHeight - 15) : 0);
+                
+                if (mY > shiftedY && mY < shiftedY + stringHeight && !str_is_null_or_empty(lineCh)) {
+                    debug_ui_box_set(_chatLeft, shiftedY, _chatRight, shiftedY + stringHeight);
+                    chat_handle_hover_msg(lineCh, i, cursorState, mX - _chatLeft, mY - shiftedY);
                 }
             }
         }
@@ -426,6 +423,32 @@ sint32 chat_string_wrapped_get_height(void *args, sint32 width)
     for (sint32 line = 0; line <= numLines; ++line) {
         buffer = get_string_end(buffer) + 1;
         lineY += lineHeight;
+    }
+
+    return lineY;
+}
+
+// Wrap string without drawing, useful to get the height of a wrapped string.
+// Almost the same as gfx_draw_string_left_wrapped
+sint32 chat_string_wrapped_get_height_ext(void *args, sint32 width, sint32 *numLines, sint32 *lineHeight)
+{
+    sint32 fontSpriteBase, lineY;
+
+    gCurrentFontSpriteBase = FONT_SPRITE_BASE_MEDIUM;
+
+    char *buffer = gCommonStringFormatBuffer;
+    format_string(buffer, 256, STR_STRING, args);
+
+    gCurrentFontSpriteBase = FONT_SPRITE_BASE_MEDIUM;
+    gfx_wrap_string(buffer, width, numLines, &fontSpriteBase);
+    *lineHeight = font_get_line_height(fontSpriteBase);
+
+    gCurrentFontFlags = 0;
+
+    lineY = 0;
+    for (sint32 line = 0; line <= *numLines; ++line) {
+        buffer = get_string_end(buffer) + 1;
+        lineY += *lineHeight;
     }
 
     return lineY;
