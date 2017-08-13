@@ -375,6 +375,10 @@ static void window_map_mouseup(rct_window *w, rct_widgetindex widgetIndex)
         window_map_inputsize_map(w);
         break;
     case WIDX_MAP_GENERATOR:
+        // Map Generator was not meant to be visible outside scenario editor, so warn player.
+        if (!(gScreenFlags & SCREEN_FLAGS_SCENARIO_EDITOR)) {
+            window_error_open(STR_WARNING_IN_CAPS, STR_THIS_FEATURE_IS_CURRENTLY_UNSTABLE);
+        }
         context_open_window(WC_MAPGEN);
         break;
     default:
@@ -981,9 +985,7 @@ static void window_map_show_default_scenario_editor_buttons(rct_window *w) {
     w->widgets[WIDX_MAP_SIZE_SPINNER_UP].type = WWT_DROPDOWN_BUTTON;
     w->widgets[WIDX_MAP_SIZE_SPINNER_DOWN].type = WWT_DROPDOWN_BUTTON;
 
-    // Only show this in the scenario editor, even when in sandbox mode.
-    if (gScreenFlags & SCREEN_FLAGS_SCENARIO_EDITOR)
-        w->widgets[WIDX_MAP_GENERATOR].type = WWT_DROPDOWN_BUTTON;
+    w->widgets[WIDX_MAP_GENERATOR].type = WWT_DROPDOWN_BUTTON;
 
     set_format_arg(2, uint16, gMapSize - 2);
 }

@@ -3747,8 +3747,17 @@ static void clear_elements_at(sint32 x, sint32 y)
     rct_map_element *mapElement = map_get_first_element_at(x >> 5, y >> 5);
 
     // Remove all elements except the last one
-    while(!map_element_is_last_for_tile(mapElement))
+    // BUG infinite loop may occur from map generator in active park (such as Robin Woods scenario)
+    // Fix this by finding out why map_element_is_last_for_tile never ends on some.
+    int numberOfIterations = 0;
+    while (!map_element_is_last_for_tile(mapElement)) {
         clear_element_at(x, y, &mapElement);
+        if (numberOfIterations > 10000) {
+            log_warning("possible infinite loop detected in clear_elements_at(%d, %d)", x / 16, y / 16);
+            break;
+        }
+        numberOfIterations++;
+    }
 
     // Remove the last element
     clear_element_at(x, y, &mapElement);
