@@ -4344,22 +4344,22 @@ static void window_ride_colour_dropdown(rct_window *w, rct_widgetindex widgetInd
         window_invalidate(w);
         break;
     case WIDX_TRACK_MAIN_COLOUR:
-        game_do_command(0, (0 << 8) | 1, 0, (dropdownIndex << 8) | w->number, GAME_COMMAND_SET_RIDE_APPEARANCE, w->ride_colour, 0);
+        game_do_command(0, (RIDE_SET_APPEARANCE_COMMAND_TYPE_TRACK_COLOUR_MAIN << 8) | 1, 0, (dropdownIndex << 8) | w->number, GAME_COMMAND_SET_RIDE_APPEARANCE, w->ride_colour, 0);
         break;
     case WIDX_TRACK_ADDITIONAL_COLOUR:
-        game_do_command(0, (1 << 8) | 1, 0, (dropdownIndex << 8) | w->number, GAME_COMMAND_SET_RIDE_APPEARANCE, w->ride_colour, 0);
+        game_do_command(0, (RIDE_SET_APPEARANCE_COMMAND_TYPE_TRACK_COLOUR_ADDITIONAL << 8) | 1, 0, (dropdownIndex << 8) | w->number, GAME_COMMAND_SET_RIDE_APPEARANCE, w->ride_colour, 0);
         break;
     case WIDX_TRACK_SUPPORT_COLOUR:
-        game_do_command(0, (4 << 8) | 1, 0, (dropdownIndex << 8) | w->number, GAME_COMMAND_SET_RIDE_APPEARANCE, w->ride_colour, 0);
+        game_do_command(0, (RIDE_SET_APPEARANCE_COMMAND_TYPE_TRACK_COLOUR_SUPPORTS << 8) | 1, 0, (dropdownIndex << 8) | w->number, GAME_COMMAND_SET_RIDE_APPEARANCE, w->ride_colour, 0);
         break;
     case WIDX_MAZE_STYLE_DROPDOWN:
-        game_do_command(0, (4 << 8) | 1, 0, (dropdownIndex << 8) | w->number, GAME_COMMAND_SET_RIDE_APPEARANCE, w->ride_colour, 0);
+        game_do_command(0, (RIDE_SET_APPEARANCE_COMMAND_TYPE_TRACK_COLOUR_SUPPORTS << 8) | 1, 0, (dropdownIndex << 8) | w->number, GAME_COMMAND_SET_RIDE_APPEARANCE, w->ride_colour, 0);
         break;
     case WIDX_ENTRANCE_STYLE_DROPDOWN:
-        game_do_command(0, (6 << 8) | 1, 0, (window_ride_entrance_style_list[dropdownIndex] << 8) | w->number, GAME_COMMAND_SET_RIDE_APPEARANCE, 0, 0);
+        game_do_command(0, (RIDE_SET_APPEARANCE_COMMAND_TYPE_ENTRANCE_STYLE << 8) | 1, 0, (window_ride_entrance_style_list[dropdownIndex] << 8) | w->number, GAME_COMMAND_SET_RIDE_APPEARANCE, 0, 0);
         break;
     case WIDX_VEHICLE_COLOUR_SCHEME_DROPDOWN:
-        game_do_command(0, (5 << 8) | 1, 0, (dropdownIndex << 8) | w->number, GAME_COMMAND_SET_RIDE_APPEARANCE, 0, 0);
+        game_do_command(0, (RIDE_SET_APPEARANCE_COMMAND_TYPE_COLOUR_SCHEME_TYPE << 8) | 1, 0, (dropdownIndex << 8) | w->number, GAME_COMMAND_SET_RIDE_APPEARANCE, 0, 0);
         w->vehicleIndex = 0;
         break;
     case WIDX_VEHICLE_COLOUR_INDEX_DROPDOWN:
@@ -4367,13 +4367,13 @@ static void window_ride_colour_dropdown(rct_window *w, rct_widgetindex widgetInd
         window_invalidate(w);
         break;
     case WIDX_VEHICLE_MAIN_COLOUR:
-        game_do_command(0, (2 << 8) | 1, 0, (dropdownIndex << 8) | w->number, GAME_COMMAND_SET_RIDE_APPEARANCE, w->vehicleIndex, 0);
+        game_do_command(0, (RIDE_SET_APPEARANCE_COMMAND_TYPE_VEHICLE_COLOURS << 8) | 1, 0, (dropdownIndex << 8) | w->number, GAME_COMMAND_SET_RIDE_APPEARANCE, w->vehicleIndex, 0);
         break;
     case WIDX_VEHICLE_ADDITIONAL_COLOUR_1:
-        game_do_command(0, (3 << 8) | 1, 0, (dropdownIndex << 8) | w->number, GAME_COMMAND_SET_RIDE_APPEARANCE, w->vehicleIndex, 0);
+        game_do_command(0, (RIDE_SET_APPEARANCE_COMMAND_TYPE_NEXT_VEHICLE_COLOURS << 8) | 1, 0, (dropdownIndex << 8) | w->number, GAME_COMMAND_SET_RIDE_APPEARANCE, w->vehicleIndex, 0);
         break;
     case WIDX_VEHICLE_ADDITIONAL_COLOUR_2:
-        game_do_command(0, (7 << 8) | 1, 0, (dropdownIndex << 8) | w->number, GAME_COMMAND_SET_RIDE_APPEARANCE, w->vehicleIndex, 0);
+        game_do_command(0, (RIDE_SET_APPEARANCE_COMMAND_TYPE_VEHICLE_COLOURS_EXTENDED << 8) | 1, 0, (dropdownIndex << 8) | w->number, GAME_COMMAND_SET_RIDE_APPEARANCE, w->vehicleIndex, 0);
         break;
     }
 }

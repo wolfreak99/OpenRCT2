@@ -6632,7 +6632,7 @@ void game_command_set_ride_appearance(sint32 *eax, sint32 *ebx, sint32 *ecx, sin
 
     *ebx = 0;
     switch(type) {
-    case 0:
+    caseRIDE_SET_APPEARANCE_COMMAND_TYPE_TRACK_COLOUR_MAIN:
         if (index >= countof(ride->track_colour_main)) {
             log_warning("Invalid game command, index %d out of bounds", index);
             *ebx = MONEY32_UNDEFINED;
@@ -6643,7 +6643,7 @@ void game_command_set_ride_appearance(sint32 *eax, sint32 *ebx, sint32 *ecx, sin
             gfx_invalidate_screen();
         }
         break;
-    case 1:
+    case RIDE_SET_APPEARANCE_COMMAND_TYPE_TRACK_COLOUR_ADDITIONAL:
         if (index >= countof(ride->track_colour_additional)) {
             log_warning("Invalid game command, index %d out of bounds", index);
             *ebx = MONEY32_UNDEFINED;
@@ -6654,7 +6654,7 @@ void game_command_set_ride_appearance(sint32 *eax, sint32 *ebx, sint32 *ecx, sin
             gfx_invalidate_screen();
         }
         break;
-    case 2:
+    case RIDE_SET_APPEARANCE_COMMAND_TYPE_VEHICLE_COLOURS:
         if (index >= countof(ride->vehicle_colours)) {
             log_warning("Invalid game command, index %d out of bounds", index);
             *ebx = MONEY32_UNDEFINED;
@@ -6665,7 +6665,7 @@ void game_command_set_ride_appearance(sint32 *eax, sint32 *ebx, sint32 *ecx, sin
             ride_update_vehicle_colours(ride_id);
         }
         break;
-    case 3:
+    case RIDE_SET_APPEARANCE_COMMAND_TYPE_NEXT_VEHICLE_COLOURS:
         if (index >= countof(ride->vehicle_colours)) {
             log_warning("Invalid game command, index %d out of bounds", index);
             *ebx = MONEY32_UNDEFINED;
@@ -6676,7 +6676,7 @@ void game_command_set_ride_appearance(sint32 *eax, sint32 *ebx, sint32 *ecx, sin
             ride_update_vehicle_colours(ride_id);
         }
         break;
-    case 4:
+    case RIDE_SET_APPEARANCE_COMMAND_TYPE_TRACK_COLOUR_SUPPORTS:
         if (index >= countof(ride->track_colour_supports)) {
             log_warning("Invalid game command, index %d out of bounds", index);
             *ebx = MONEY32_UNDEFINED;
@@ -6687,7 +6687,7 @@ void game_command_set_ride_appearance(sint32 *eax, sint32 *ebx, sint32 *ecx, sin
             gfx_invalidate_screen();
         }
         break;
-    case 5:
+    case RIDE_SET_APPEARANCE_COMMAND_TYPE_COLOUR_SCHEME_TYPE:
         if (apply) {
             ride->colour_scheme_type &= ~(RIDE_COLOUR_SCHEME_DIFFERENT_PER_TRAIN | RIDE_COLOUR_SCHEME_DIFFERENT_PER_CAR);
             ride->colour_scheme_type |= value;
@@ -6698,14 +6698,14 @@ void game_command_set_ride_appearance(sint32 *eax, sint32 *ebx, sint32 *ecx, sin
             ride_update_vehicle_colours(ride_id);
         }
         break;
-    case 6:
+    case RIDE_SET_APPEARANCE_COMMAND_TYPE_ENTRANCE_STYLE:
         if (apply) {
             ride->entrance_style = value;
             gLastEntranceStyle = value;
             gfx_invalidate_screen();
         }
         break;
-    case 7:
+    case RIDE_SET_APPEARANCE_COMMAND_TYPE_VEHICLE_COLOURS_EXTENDED:
         if (index >= countof(ride->vehicle_colours_extended)) {
             log_warning("Invalid game command, index %d out of bounds", index);
             *ebx = MONEY32_UNDEFINED;
