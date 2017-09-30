@@ -64,8 +64,8 @@ public:
             return window_land_rights_open();
         case WC_MAIN_WINDOW:
             return window_main_open();
-        case WC_MAPGEN:
-            return window_mapgen_open();
+        case WC_EDITOR_MAP_GENERATOR:
+            return window_editor_map_generator_open();
         case WC_MULTIPLAYER:
             return window_multiplayer_open();
         case WC_MUSIC_CREDITS:

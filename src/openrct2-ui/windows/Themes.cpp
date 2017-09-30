@@ -224,7 +224,7 @@ static rct_windowclass window_themes_tab_5_classes[] = {
     WC_EDITOR_INVENTION_LIST,
     WC_EDITOR_SCENARIO_OPTIONS,
     WC_EDTIOR_OBJECTIVE_OPTIONS,
-    WC_MAPGEN,
+    WC_EDITOR_MAP_GENERATOR,
     WC_MANAGE_TRACK_DESIGN,
     WC_INSTALL_TRACK
 };

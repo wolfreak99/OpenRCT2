@@ -486,7 +486,7 @@ static void window_top_toolbar_mousedown(rct_window *w, rct_widgetindex widgetIn
         numItems = 2;
 
         if ((gScreenFlags & SCREEN_FLAGS_SCENARIO_EDITOR) && gS6Info.editor_step == EDITOR_STEP_LANDSCAPE_EDITOR) {
-            gDropdownItemsFormat[2] = STR_MAPGEN_WINDOW_TITLE;
+            gDropdownItemsFormat[2] = STR_EDITOR_MAP_GENERATOR_WINDOW_TITLE;
             numItems++;
         }
 
@@ -623,7 +623,7 @@ static void window_top_toolbar_dropdown(rct_window *w, rct_widgetindex widgetInd
             context_open_window(WC_VIEWPORT);
             break;
         case 2:
-            context_open_window(WC_MAPGEN);
+            context_open_window(WC_EDITOR_MAP_GENERATOR);
             break;
         }
         break;
