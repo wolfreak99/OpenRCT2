@@ -100,6 +100,9 @@ static void mapgen_set_height();
 
 static void mapgen_simplex(mapgen_settings *settings);
 
+static void noise_rand();
+static float fractal_noise(sint32 x, sint32 y, float frequency, sint32 octaves, float lacunarity, float persistence);
+
 static sint32 _heightSize;
 static uint8 *_height;
 
@@ -302,78 +305,59 @@ static void mapgen_place_trees()
         }
     }
 
-    sint32 availablePositionsCount = 0;
-    struct { sint32 x; sint32 y; } tmp, *pos, *availablePositions;
-    availablePositions = malloc(MAXIMUM_MAP_SIZE_TECHNICAL * MAXIMUM_MAP_SIZE_TECHNICAL * sizeof(tmp));
+    float freq = 1.75f * (1.0f / _heightSize);
+    sint32 octaves = 12;
 
-    // Create list of available tiles
+    noise_rand();
     for (sint32 y = 1; y < gMapSize - 1; y++) {
         for (sint32 x = 1; x < gMapSize - 1; x++) {
-            rct_map_element *mapElement = map_get_surface_element_at(x, y);
+            float noiseValue = clamp(-1.0f, fractal_noise(x, y, freq, octaves, 2.0f, 0.65f), 1.0f);
+            float normalisedNoiseValue = (noiseValue + 1.0f) / 2.0f;
 
-            // Exclude water tiles
-            if (map_get_water_height(mapElement) > 0)
+            if (normalisedNoiseValue < 0.55f)
                 continue;
 
-            pos = &availablePositions[availablePositionsCount++];
-            pos->x = x;
-            pos->y = y;
+            rct_map_element *mapElement = map_get_surface_element_at(x, y);
+            if (map_get_water_height(mapElement) > 0) {
+                continue;
+            }
+
+            // TODO: add some detection for trees at following tiles: (x - 1, y), (x, y - 1)
+
+            sint32 type = -1;
+            switch (map_element_get_terrain(mapElement)) {
+            case TERRAIN_GRASS:
+            case TERRAIN_DIRT:
+            case TERRAIN_GRASS_CLUMPS:
+                if (numGrassTreeIds == 0)
+                    break;
+
+                type = grassTreeIds[util_rand() % numGrassTreeIds];
+                break;
+
+            case TERRAIN_SAND:
+            case TERRAIN_SAND_DARK:
+            case TERRAIN_SAND_LIGHT:
+                if (numDesertTreeIds == 0)
+                    break;
+
+                if (util_rand() % 4 == 0)
+                    type = desertTreeIds[util_rand() % numDesertTreeIds];
+                break;
+
+            case TERRAIN_ICE:
+                if (numSnowTreeIds == 0)
+                    break;
+
+                type = snowTreeIds[util_rand() % numSnowTreeIds];
+                break;
+            }
+            if (type != -1)
+                mapgen_place_tree(type, x, y);
+
         }
     }
 
-    // Shuffle list
-    for (sint32 i = 0; i < availablePositionsCount; i++) {
-        sint32 rindex = util_rand() % availablePositionsCount;
-        if (rindex == i)
-            continue;
-
-        tmp = availablePositions[i];
-        availablePositions[i] = availablePositions[rindex];
-        availablePositions[rindex] = tmp;
-    }
-
-    // Place trees
-    float treeToLandRatio = (10 + (util_rand() % 30)) / 100.0f;
-    sint32 numTrees = max(4, (sint32)(availablePositionsCount * treeToLandRatio));
-
-    for (sint32 i = 0; i < numTrees; i++) {
-        pos = &availablePositions[i];
-
-        sint32 type = -1;
-        rct_map_element *mapElement = map_get_surface_element_at(pos->x, pos->y);
-        switch (map_element_get_terrain(mapElement)) {
-        case TERRAIN_GRASS:
-        case TERRAIN_DIRT:
-        case TERRAIN_GRASS_CLUMPS:
-            if (numGrassTreeIds == 0)
-                break;
-
-            type = grassTreeIds[util_rand() % numGrassTreeIds];
-            break;
-
-        case TERRAIN_SAND:
-        case TERRAIN_SAND_DARK:
-        case TERRAIN_SAND_LIGHT:
-            if (numDesertTreeIds == 0)
-                break;
-
-            if (util_rand() % 4 == 0)
-                type = desertTreeIds[util_rand() % numDesertTreeIds];
-            break;
-
-        case TERRAIN_ICE:
-            if (numSnowTreeIds == 0)
-                break;
-
-            type = snowTreeIds[util_rand() % numSnowTreeIds];
-            break;
-        }
-
-        if (type != -1)
-            mapgen_place_tree(type, pos->x, pos->y);
-    }
-
-    free(availablePositions);
     free(grassTreeIds);
     free(desertTreeIds);
     free(snowTreeIds);
