@@ -41,6 +41,21 @@ typedef struct mapgen_settings {
     bool smooth_height_map;
     uint32 smooth_strength;
     bool normalize_height;
+
+    // Forest settings
+    bool trees_place;
+    // default was 1.75f;
+    float trees_frequency;
+    // default was _mapHeight, but 10 works pretty nice.
+    sint32 trees_amplitude;
+    // default was 6
+    sint32 trees_octaves;
+    // default was 2.0f
+    float trees_lacunarity;
+    // default was 0.65f
+    float trees_persistance;
+    // default was 0.75f
+    float trees_threshold;
 } mapgen_settings;
 
 #ifdef __cplusplus
@@ -50,6 +65,7 @@ extern "C" {
 void mapgen_generate_blank(mapgen_settings *settings);
 void mapgen_generate(mapgen_settings *settings);
 void mapgen_generate_custom_simplex(mapgen_settings *settings);
+void mapgen_generate_forest(mapgen_settings *settings);
 bool mapgen_load_heightmap(const utf8 *path);
 void mapgen_unload_heightmap();
 void mapgen_generate_from_heightmap(mapgen_settings *settings);

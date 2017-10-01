@@ -151,6 +151,11 @@ void mapgen_generate_blank(mapgen_settings *settings)
     mapgen_set_water_level(settings->water_level);
 }
 
+void mapgen_clear_trees()
+{
+    // TODO clear trees
+}
+
 void mapgen_generate(mapgen_settings *settings)
 {
     sint32 x, y, mapSize, floorTexture, wallTexture, waterLevel;
@@ -249,13 +254,13 @@ void mapgen_generate(mapgen_settings *settings)
     }
 
     // Place the trees
-    if (settings->trees != 0)
-        mapgen_place_trees();
+    if (settings->trees)
+        mapgen_generate_forest(settings);
 
     map_reorganise_elements();
 }
 
-static const int convert_2d_to_1d(sint32 x, sint32 y, sint32 maxWidth)
+static const sint64 convert_2d_to_1d(sint32 x, sint32 y, sint32 maxWidth)
 {
     return x + (y * maxWidth);
 }
@@ -280,8 +285,11 @@ static void mapgen_place_tree(sint32 type, sint32 x, sint32 y)
 /**
  * Randomly places a selection of preset trees on the map. Picks the right tree for the terrain it is placing it on.
  */
-static void mapgen_place_trees()
+void mapgen_generate_forest(mapgen_settings * settings)
 {
+    if (!settings->trees_place)
+        return;
+
     sint32 numGrassTreeIds = 0, numDesertTreeIds = 0, numSnowTreeIds = 0;
     sint32 *grassTreeIds = (sint32*)malloc(countof(GrassTrees) * sizeof(sint32));
     sint32 *desertTreeIds = (sint32*)malloc(countof(DesertTrees) * sizeof(sint32));
@@ -321,32 +329,28 @@ static void mapgen_place_trees()
     }
 
     // TODO: add the following tree_ variables to mapgen_settings and pass *settings to mapgen_place_trees.
-    float tree_freq = 1.75f * (1.0f / _heightSize);
-    sint32 tree_octaves = 6;
-    
-    // TODO: These two variables were originally hardcoded into mapgen_set_height, 
-    // see if exposing to interface would risk sloppy generations
-    float tree_lacunarity = 2.0f;
-    float tree_persistance = 0.65f;
-    float tree_threshold = 0.55f; // normalised noise must be greater than or equal to this to trigger tree
-
+    float tree_freq = settings->trees_frequency * (1.0f / settings->trees_amplitude);
+    float tree_octaves = settings->trees_octaves;
+    float tree_lacunarity = settings->trees_lacunarity;
+    float tree_persistance = settings->trees_persistance;
+    float tree_threshold = settings->trees_threshold;
 
 
     struct { sint32 x; sint32 y; bool tree; } tmp, *pos, *neighborPos, *availablePositions;
-    availablePositions = malloc(MAXIMUM_MAP_SIZE_TECHNICAL * MAXIMUM_MAP_SIZE_TECHNICAL * sizeof(tmp));
 
-    noise_rand();
+    //noise_rand();
+    availablePositions = malloc(MAXIMUM_MAP_SIZE_TECHNICAL * MAXIMUM_MAP_SIZE_TECHNICAL  * MAXIMUM_MAP_SIZE_PRACTICAL * sizeof(tmp));
     
     // Create list of tiles, and determine if tree should be placed.
     for (sint32 y = 0; y < gMapSize - 2; y++) {
         for (sint32 x = 0; x < gMapSize - 2; x++) {
             
             pos = &availablePositions[convert_2d_to_1d(x, y, gMapSize - 2)];
-            pos->x = x + 1;
-            pos->y = y + 1;
+            pos->x = x;
+            pos->y = y;
             pos->tree = false;
 
-            rct_map_element *mapElement = map_get_surface_element_at(pos->x, pos->y);
+            rct_map_element *mapElement = map_get_surface_element_at(pos->x + 1, pos->y + 1);
 
             // Exclude water tiles
             if (map_get_water_height(mapElement) > 0)
@@ -359,42 +363,58 @@ static void mapgen_place_trees()
             if (normalisedNoiseValue < tree_threshold)
                 continue;
 
+            /*
+            // Check around neighboring edges for surrounding trees
+            sint32 nearbyTrees = 0;
+
+            for (sint32 xx = -1; xx <= 1; xx += 1) {
+                sint32 x2 = clamp(0, x + xx, gMapSize - 2);
+                neighborPos = &availablePositions[convert_2d_to_1d(x2, y, gMapSize - 2)];
+                if (neighborPos->x == x2 && neighborPos->y == y && neighborPos->tree) {
+                    nearbyTrees++;
+                }
+            }
+            for (sint32 yy = -1; yy <= 1; yy += 1) {
+                sint32 y2 = clamp(0, y + yy, gMapSize - 2);
+                neighborPos = &availablePositions[convert_2d_to_1d(x, y2, gMapSize - 2)];
+                if (neighborPos->x == x && neighborPos->y == y2 && neighborPos->tree) {
+                    nearbyTrees++;
+                }
+            }
+
+            // If a certain amount reaches (and a random bool being true, where needed), do not plant
+            sint32 treeThreshold = 8;
+            if ((nearbyTrees >= (treeThreshold / 1)) ||
+                (nearbyTrees >= (treeThreshold / 2) && (util_rand() % 3 == 0)) ||
+                (nearbyTrees >= (treeThreshold / 3) && (util_rand() % 4 == 0)))
+                continue;
+
+                */
             pos->tree = true;
         }
     }
 
-    // TODO: After list has been fully completed, remove trees surrounded by 4 other trees.
-
-    // Place trees on the approved tiles
+    // After list has been fully completed, remove trees surrounded by 4 other trees.
+    /*
     for (sint32 y = 0; y < gMapSize - 2; y++) {
         for (sint32 x = 0; x < gMapSize - 2; x++) {
             pos = &availablePositions[convert_2d_to_1d(x, y, gMapSize - 2)];
             if (!pos->tree)
                 continue;
 
-            
             // Check around the neighboring edges for surrounding trees
             sint32 nearbyTrees = 0;
-            for (sint32 xx = -1; xx <= 1; xx += 2) {
-                sint32 x2 = clamp(0, x + xx, gMapSize - 2);
-                neighborPos = &availablePositions[convert_2d_to_1d(x2, y, gMapSize - 2)];
-                if (neighborPos->x == x2 + 1 && neighborPos->y == y + 1 && neighborPos->tree);
-                    nearbyTrees++;
-            }
-            for (sint32 yy = -1; yy <= 1; yy += 2) {
-                sint32 y2 = clamp(0, y + yy, gMapSize - 2);
-                neighborPos = &availablePositions[convert_2d_to_1d(x, y2, gMapSize - 2)];
-                if (neighborPos->x == x + 1 && neighborPos->y == y2 + 1 && neighborPos->tree);
-                    nearbyTrees++;
-            }
-
-            // If 2 or more trees exist, or if 1 and 50% chance, do not plant.
-            if ((nearbyTrees >= 4) || ((nearbyTrees >= 2) && ((util_rand() % 2) == 0))) {
-                pos->tree = false;
+        }
+    }
+    */
+    // Place trees on the approved tiles
+    for (sint32 y = 0; y < gMapSize - 2; y++) {
+        for (sint32 x = 0; x < gMapSize - 2; x++) {
+            pos = &availablePositions[convert_2d_to_1d(x, y, gMapSize - 2)];
+            if (!pos->tree)
                 continue;
-            }
             
-            rct_map_element *mapElement = map_get_surface_element_at(pos->x, pos->y);
+            rct_map_element *mapElement = map_get_surface_element_at(pos->x + 1, pos->y + 1);
             
             sint32 type = -1;
 
@@ -428,7 +448,7 @@ static void mapgen_place_trees()
             if (type == -1)
                 continue;
 
-            mapgen_place_tree(type, pos->x, pos->y);
+            mapgen_place_tree(type, pos->x + 1, pos->y + 1);
         }
     }
 
