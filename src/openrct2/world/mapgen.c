@@ -153,7 +153,7 @@ void mapgen_generate_blank(mapgen_settings *settings)
 
 void mapgen_clear_trees()
 {
-    // TODO clear trees
+    // TODO clear trees, possibly using scenery_clear function..
 }
 
 void mapgen_generate(mapgen_settings *settings)
@@ -254,7 +254,7 @@ void mapgen_generate(mapgen_settings *settings)
     }
 
     // Place the trees
-    if (settings->trees)
+    if (settings->trees_place)
         mapgen_generate_forest(settings);
 
     map_reorganise_elements();
@@ -289,6 +289,8 @@ void mapgen_generate_forest(mapgen_settings * settings)
 {
     if (!settings->trees_place)
         return;
+
+    mapgen_clear_trees();
 
     sint32 numGrassTreeIds = 0, numDesertTreeIds = 0, numSnowTreeIds = 0;
     sint32 *grassTreeIds = (sint32*)malloc(countof(GrassTrees) * sizeof(sint32));
@@ -339,7 +341,7 @@ void mapgen_generate_forest(mapgen_settings * settings)
     struct { sint32 x; sint32 y; bool tree; } tmp, *pos, *neighborPos, *availablePositions;
 
     //noise_rand();
-    availablePositions = malloc(MAXIMUM_MAP_SIZE_TECHNICAL * MAXIMUM_MAP_SIZE_TECHNICAL  * MAXIMUM_MAP_SIZE_PRACTICAL * sizeof(tmp));
+    availablePositions = malloc(MAXIMUM_MAP_SIZE_TECHNICAL * MAXIMUM_MAP_SIZE_TECHNICAL * sizeof(tmp));
     
     // Create list of tiles, and determine if tree should be placed.
     for (sint32 y = 0; y < gMapSize - 2; y++) {
@@ -363,10 +365,22 @@ void mapgen_generate_forest(mapgen_settings * settings)
             if (normalisedNoiseValue < tree_threshold)
                 continue;
 
-            /*
-            // Check around neighboring edges for surrounding trees
-            sint32 nearbyTrees = 0;
+            pos->tree = true;
+        }
+    }
 
+    // After list has been fully completed, remove trees surrounded by 4 other trees.
+    
+    for (sint32 y = 0; y < gMapSize - 2; y++) {
+        for (sint32 x = 0; x < gMapSize - 2; x++) {
+            pos = &availablePositions[convert_2d_to_1d(x, y, gMapSize - 2)];
+            // Skip already treeless items
+            if (!pos->tree)
+                continue;
+
+            // Check around the neighboring edges for surrounding trees
+            sint32 nearbyTrees = 0;
+            
             for (sint32 xx = -1; xx <= 1; xx += 1) {
                 sint32 x2 = clamp(0, x + xx, gMapSize - 2);
                 neighborPos = &availablePositions[convert_2d_to_1d(x2, y, gMapSize - 2)];
@@ -386,27 +400,12 @@ void mapgen_generate_forest(mapgen_settings * settings)
             sint32 treeThreshold = 8;
             if ((nearbyTrees >= (treeThreshold / 1)) ||
                 (nearbyTrees >= (treeThreshold / 2) && (util_rand() % 3 == 0)) ||
-                (nearbyTrees >= (treeThreshold / 3) && (util_rand() % 4 == 0)))
-                continue;
-
-                */
-            pos->tree = true;
+                (nearbyTrees >= (treeThreshold / 4) && (util_rand() % 4 == 0))) {
+                    pos->tree = false;
+                }
         }
     }
-
-    // After list has been fully completed, remove trees surrounded by 4 other trees.
-    /*
-    for (sint32 y = 0; y < gMapSize - 2; y++) {
-        for (sint32 x = 0; x < gMapSize - 2; x++) {
-            pos = &availablePositions[convert_2d_to_1d(x, y, gMapSize - 2)];
-            if (!pos->tree)
-                continue;
-
-            // Check around the neighboring edges for surrounding trees
-            sint32 nearbyTrees = 0;
-        }
-    }
-    */
+    
     // Place trees on the approved tiles
     for (sint32 y = 0; y < gMapSize - 2; y++) {
         for (sint32 x = 0; x < gMapSize - 2; x++) {
