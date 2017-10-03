@@ -28,7 +28,7 @@
 
 enum {
     WINDOW_MAPGEN_PAGE_BASE,
-    WINDOW_MAPGEN_PAGE_RANDOM,
+    WINDOW_MAPGEN_PAGE_TREES,
     WINDOW_MAPGEN_PAGE_SIMPLEX,
     WINDOW_MAPGEN_PAGE_HEIGHTMAP,
     WINDOW_MAPGEN_PAGE_COUNT
@@ -60,9 +60,17 @@ enum {
     WIDX_FLOOR_TEXTURE,
     WIDX_WALL_TEXTURE,
 
-    WIDX_RANDOM_GENERATE = TAB_BEGIN,
-    WIDX_RANDOM_TERRAIN,
-    WIDX_RANDOM_PLACE_TREES,
+    WIDX_TREES_GENERATE = TAB_BEGIN,
+    WIDX_TREES_PLACE_TREES,
+    WIDX_TREES_HIGH,
+    WIDX_TREES_HIGH_UP,
+    WIDX_TREES_HIGH_DOWN,
+    WIDX_TREES_BASE_FREQ,
+    WIDX_TREES_BASE_FREQ_UP,
+    WIDX_TREES_BASE_FREQ_DOWN,
+    WIDX_TREES_OCTAVES,
+    WIDX_TREES_OCTAVES_UP,
+    WIDX_TREES_OCTAVES_DOWN,
 
     WIDX_SIMPLEX_GENERATE = TAB_BEGIN,
     WIDX_SIMPLEX_LABEL,
@@ -141,13 +149,26 @@ static rct_widget MapWidgets[] = {
     { WIDGETS_END },
 };
 
-static rct_widget RandomWidgets[] = {
+static rct_widget TreesWidgets[] = {
     SHARED_WIDGETS,
 
     { WWT_DROPDOWN_BUTTON,  1, WW - 95, WW - 6, WH - 17, WH - 6, STR_MAPGEN_ACTION_GENERATE,        STR_NONE },
 
-    { WWT_CHECKBOX,         1,  4,      198,    52,     63,     STR_MAPGEN_OPTION_RANDOM_TERRAIN,   STR_NONE },
-    { WWT_CHECKBOX,         1,  4,      198,    70,     81,     STR_MAPGEN_OPTION_PLACE_TREES,      STR_NONE },
+    { WWT_CHECKBOX,         1,  4,      198,    52,     63,     STR_MAPGEN_OPTION_PLACE_TREES,      STR_NONE }, // WIDX_TREES_PLACE_TREES
+
+    { WWT_SPINNER,          1,  104,    198,    88,     99,     STR_NONE,                         STR_NONE }, // WIDX_TREES_HIGH
+    { WWT_DROPDOWN_BUTTON,  1,  187,    197,    89,     93,     STR_NUMERIC_UP,                   STR_NONE }, // WIDX_TREES_HIGH_UP
+    { WWT_DROPDOWN_BUTTON,  1,  187,    197,    94,     98,     STR_NUMERIC_DOWN,                 STR_NONE }, // WIDX_TREES_HIGH_DOWN
+
+    { WWT_SPINNER,          1,  104,    198,    106,    117,    STR_NONE,                         STR_NONE }, // WIDX_TREES_BASE_FREQ
+    { WWT_DROPDOWN_BUTTON,  1,  187,    197,    107,    111,    STR_NUMERIC_UP,                   STR_NONE }, // WIDX_TREES_BASE_FREQ_UP
+    { WWT_DROPDOWN_BUTTON,  1,  187,    197,    112,    116,    STR_NUMERIC_DOWN,                 STR_NONE }, // WIDX_TREES_BASE_FREQ_DOWN
+
+    { WWT_SPINNER,          1,  104,    198,    124,    135,    STR_NONE,                         STR_NONE }, // WIDX_TREES_OCTAVES
+    { WWT_DROPDOWN_BUTTON,  1,  187,    197,    125,    129,    STR_NUMERIC_UP,                   STR_NONE }, // WIDX_TREES_OCTAVES_UP
+    { WWT_DROPDOWN_BUTTON,  1,  187,    197,    130,    134,    STR_NUMERIC_DOWN,                 STR_NONE }, // WIDX_TREES_OCTAVES_DOWN
+
+
     { WIDGETS_END },
 };
 
@@ -222,7 +243,7 @@ static rct_widget HeightmapWidgets[] = {
 
 static rct_widget *PageWidgets[WINDOW_MAPGEN_PAGE_COUNT] = {
     MapWidgets,
-    RandomWidgets,
+    TreesWidgets,
     SimplexWidgets,
     HeightmapWidgets
 };
@@ -242,11 +263,11 @@ static void window_mapgen_textinput(rct_window *w, rct_widgetindex widgetIndex, 
 static void window_mapgen_base_invalidate(rct_window *w);
 static void window_mapgen_base_paint(rct_window *w, rct_drawpixelinfo *dpi);
 
-static void window_mapgen_random_mouseup(rct_window *w, rct_widgetindex widgetIndex);
-static void window_mapgen_random_mousedown(rct_window *w, rct_widgetindex widgetIndex, rct_widget* widget);
-static void window_mapgen_random_update(rct_window *w);
-static void window_mapgen_random_invalidate(rct_window *w);
-static void window_mapgen_random_paint(rct_window *w, rct_drawpixelinfo *dpi);
+static void window_mapgen_trees_mouseup(rct_window *w, rct_widgetindex widgetIndex);
+static void window_mapgen_trees_mousedown(rct_window *w, rct_widgetindex widgetIndex, rct_widget* widget);
+static void window_mapgen_trees_update(rct_window *w);
+static void window_mapgen_trees_invalidate(rct_window *w);
+static void window_mapgen_trees_paint(rct_window *w, rct_drawpixelinfo *dpi);
 
 static void window_mapgen_simplex_mouseup(rct_window *w, rct_widgetindex widgetIndex);
 static void window_mapgen_simplex_mousedown(rct_window *w, rct_widgetindex widgetIndex, rct_widget* widget);
@@ -291,16 +312,14 @@ static rct_window_event_list BaseEvents = {
     nullptr
 };
 
-static rct_window_event_list RandomEvents = {
+static rct_window_event_list TreesEvents = {
     window_mapgen_shared_close,
-    window_mapgen_random_mouseup,
+    window_mapgen_trees_mouseup,
     nullptr,
-    window_mapgen_random_mousedown,
-    nullptr,
-    nullptr,
-    window_mapgen_random_update,
+    window_mapgen_trees_mousedown,
     nullptr,
     nullptr,
+    window_mapgen_trees_update,
     nullptr,
     nullptr,
     nullptr,
@@ -317,8 +336,10 @@ static rct_window_event_list RandomEvents = {
     nullptr,
     nullptr,
     nullptr,
-    window_mapgen_random_invalidate,
-    window_mapgen_random_paint,
+    nullptr,
+    nullptr,
+    window_mapgen_trees_invalidate,
+    window_mapgen_trees_paint,
     nullptr
 };
 
@@ -386,7 +407,7 @@ static rct_window_event_list HeightmapEvents = {
 
 static rct_window_event_list *PageEvents[] = {
     &BaseEvents,
-    &RandomEvents,
+    &TreesEvents,
     &SimplexEvents,
     &HeightmapEvents
 };
@@ -419,9 +440,17 @@ static uint64 PageEnabledWidgets[WINDOW_MAPGEN_PAGE_COUNT] = {
     (1ULL << WIDX_TAB_2) |
     (1ULL << WIDX_TAB_3) |
     (1ULL << WIDX_TAB_4) |
-    (1ULL << WIDX_RANDOM_GENERATE) |
-    (1ULL << WIDX_RANDOM_TERRAIN) |
-    (1ULL << WIDX_RANDOM_PLACE_TREES),
+    (1ULL << WIDX_TREES_GENERATE) |
+    (1ULL << WIDX_TREES_PLACE_TREES) |
+    (1ULL << WIDX_TREES_HIGH) |
+    (1ULL << WIDX_TREES_HIGH_UP) |
+    (1ULL << WIDX_TREES_HIGH_DOWN) |
+    (1ULL << WIDX_TREES_BASE_FREQ) |
+    (1ULL << WIDX_TREES_BASE_FREQ_UP) |
+    (1ULL << WIDX_TREES_BASE_FREQ_DOWN) |
+    (1ULL << WIDX_TREES_OCTAVES) |
+    (1ULL << WIDX_TREES_OCTAVES_UP) |
+    (1ULL << WIDX_TREES_OCTAVES_DOWN),
 
     (1ULL << WIDX_CLOSE) |
     (1ULL << WIDX_TAB_1) |
@@ -493,7 +522,12 @@ static uint64 HoldDownWidgets[WINDOW_MAPGEN_PAGE_COUNT] = {
     (1ULL << WIDX_WATER_LEVEL_UP) |
     (1ULL << WIDX_WATER_LEVEL_DOWN),
 
-    0,
+    (1ULL << WIDX_TREES_HIGH_UP) |
+    (1ULL << WIDX_TREES_HIGH_DOWN) |
+    (1ULL << WIDX_TREES_BASE_FREQ_UP) |
+    (1ULL << WIDX_TREES_BASE_FREQ_DOWN) |
+    (1ULL << WIDX_TREES_OCTAVES_UP) |
+    (1ULL << WIDX_TREES_OCTAVES_DOWN),
 
     (1ULL << WIDX_SIMPLEX_LOW_UP) |
     (1ULL << WIDX_SIMPLEX_LOW_DOWN) |
@@ -553,8 +587,14 @@ static sint32 _baseHeight = 12;
 static sint32 _waterLevel = 6;
 static sint32 _floorTexture = TERRAIN_GRASS;
 static sint32 _wallTexture = TERRAIN_EDGE_ROCK;
+
 static bool _randomTerrain = true;
 static sint32 _placeTrees = 1;
+
+static sint32 _trees_place_trees = 1;
+static sint32 _trees_high = 10;
+static sint32 _trees_base_freq = 60;
+static sint32 _trees_octaves = 4;
 
 static sint32 _simplex_low = 6;
 static sint32 _simplex_high = 10;
@@ -817,46 +857,78 @@ static void window_mapgen_base_paint(rct_window *w, rct_drawpixelinfo *dpi)
 
 #pragma endregion
 
-#pragma region Random page
+#pragma region Trees page
 
-static void window_mapgen_random_mouseup(rct_window *w, rct_widgetindex widgetIndex)
+static void window_mapgen_trees_mouseup(rct_window *w, rct_widgetindex widgetIndex)
 {
     window_mapgen_shared_mouseup(w, widgetIndex);
 
     mapgen_settings mapgenSettings;
 
     switch (widgetIndex) {
-    case WIDX_RANDOM_GENERATE:
+    case WIDX_TREES_GENERATE:
         mapgenSettings.mapSize = _mapSize;
-        mapgenSettings.height = _baseHeight + 2;
+
+        mapgenSettings.height = _baseHeight;
         mapgenSettings.water_level = _waterLevel + 2;
         mapgenSettings.floor = _randomTerrain ? -1 : _floorTexture;
         mapgenSettings.wall = _randomTerrain ? -1 : _wallTexture;
-        mapgenSettings.trees = _placeTrees;
+        mapgenSettings.trees = _trees_place_trees ? false : _placeTrees; // For now, use old version if new version isn't enabled
 
-        mapgenSettings.simplex_low = util_rand() % 4;
-        mapgenSettings.simplex_high = 12 + (util_rand() % (32 - 12));
-        mapgenSettings.simplex_base_freq = 1.75f;
-        mapgenSettings.simplex_octaves = 6;
+        mapgenSettings.simplex_low = _simplex_low;
+        mapgenSettings.simplex_high = _simplex_high;
+        mapgenSettings.simplex_base_freq = ((float)_simplex_base_freq) / 100.00f;
+        mapgenSettings.simplex_octaves = _simplex_octaves;
+
+        mapgenSettings.trees_place = _trees_place_trees;
+        mapgenSettings.trees_amplitude = _trees_high;
+        mapgenSettings.trees_frequency = ((float)_trees_base_freq) / 100.00f;
+        mapgenSettings.trees_octaves = _trees_octaves;
+        mapgenSettings.trees_threshold = 0.5f;
+        mapgenSettings.trees_lacunarity = 2.0f;
+        mapgenSettings.trees_persistance = 0.65f;
 
         mapgen_generate(&mapgenSettings);
         gfx_invalidate_screen();
         break;
-    case WIDX_RANDOM_TERRAIN:
-        _randomTerrain = !_randomTerrain;
+    }
+}
+
+static void window_mapgen_trees_mousedown(rct_window *w, rct_widgetindex widgetIndex, rct_widget* widget)
+{
+    switch (widgetIndex) {
+    case WIDX_TREES_HIGH_UP:
+        _trees_high = Math::Min(_trees_high + 1, 36);
+        window_invalidate(w);
         break;
-    case WIDX_RANDOM_PLACE_TREES:
-        _placeTrees ^= 1;
+    case WIDX_TREES_HIGH_DOWN:
+        _trees_high = Math::Max(_trees_high - 1, 0);
+        window_invalidate(w);
+        break;
+    case WIDX_TREES_BASE_FREQ_UP:
+        _trees_base_freq = Math::Min(_trees_base_freq + 5, 1000);
+        window_invalidate(w);
+        break;
+    case WIDX_TREES_BASE_FREQ_DOWN:
+        _trees_base_freq = Math::Max(_trees_base_freq - 5, 0);
+        window_invalidate(w);
+        break;
+    case WIDX_TREES_OCTAVES_UP:
+        _trees_octaves = Math::Min(_trees_octaves + 1, 10);
+        window_invalidate(w);
+        break;
+    case WIDX_TREES_OCTAVES_DOWN:
+        _trees_octaves = Math::Max(_trees_octaves - 1, 1);
+        window_invalidate(w);
+        break;
+    case WIDX_TREES_PLACE_TREES:
+        _trees_place_trees ^= 1;
+        window_invalidate(w);
         break;
     }
 }
 
-static void window_mapgen_random_mousedown(rct_window *w, rct_widgetindex widgetIndex, rct_widget* widget)
-{
-
-}
-
-static void window_mapgen_random_update(rct_window *w)
+static void window_mapgen_trees_update(rct_window *w)
 {
     // Tab animation
     if (++w->frame_no >= TabAnimationLoops[w->page])
@@ -864,26 +936,33 @@ static void window_mapgen_random_update(rct_window *w)
     widget_invalidate(w, WIDX_TAB_2);
 }
 
-static void window_mapgen_random_invalidate(rct_window *w)
+static void window_mapgen_trees_invalidate(rct_window *w)
 {
-    if (w->widgets != PageWidgets[WINDOW_MAPGEN_PAGE_RANDOM]) {
-        w->widgets = PageWidgets[WINDOW_MAPGEN_PAGE_RANDOM];
+    if (w->widgets != PageWidgets[WINDOW_MAPGEN_PAGE_TREES]) {
+        w->widgets = PageWidgets[WINDOW_MAPGEN_PAGE_TREES];
         window_init_scroll_widgets(w);
     }
 
-    w->pressed_widgets = 0;
-    if (_randomTerrain)
-        w->pressed_widgets |= 1 << WIDX_RANDOM_TERRAIN;
-    if (_placeTrees)
-        w->pressed_widgets |= 1 << WIDX_RANDOM_PLACE_TREES;
+    widget_set_checkbox_value(w, WIDX_TREES_PLACE_TREES, _trees_place_trees != 0);
 
     window_mapgen_set_pressed_tab(w);
 }
 
-static void window_mapgen_random_paint(rct_window *w, rct_drawpixelinfo *dpi)
+static void window_mapgen_trees_paint(rct_window *w, rct_drawpixelinfo *dpi)
 {
     window_draw_widgets(w, dpi);
     window_mapgen_draw_tab_images(dpi, w);
+
+    const uint8 textColour = w->colours[1];
+
+    gfx_draw_string_left(dpi, STR_MAPGEN_SIMPLEX_NOISE_HIGH, nullptr, textColour, w->x + 5, w->y + w->widgets[WIDX_TREES_HIGH].top + 1);
+    gfx_draw_string_left(dpi, STR_MAPGEN_SIMPLEX_NOISE_BASE_FREQUENCY, nullptr, textColour, w->x + 5, w->y + w->widgets[WIDX_TREES_BASE_FREQ].top + 1);
+    gfx_draw_string_left(dpi, STR_MAPGEN_SIMPLEX_NOISE_OCTAVES, nullptr, textColour, w->x + 5, w->y + w->widgets[WIDX_TREES_OCTAVES].top + 1);
+    
+    gfx_draw_string_left(dpi, STR_COMMA16, &_trees_high, textColour, w->x + w->widgets[WIDX_TREES_HIGH].left + 1, w->y + w->widgets[WIDX_TREES_HIGH].top + 1);
+    gfx_draw_string_left(dpi, STR_WINDOW_OBJECTIVE_VALUE_RATING, &_trees_base_freq, textColour, w->x + w->widgets[WIDX_TREES_BASE_FREQ].left + 1, w->y + w->widgets[WIDX_TREES_BASE_FREQ].top + 1);
+    gfx_draw_string_left(dpi, STR_COMMA16, &_trees_octaves, textColour, w->x + w->widgets[WIDX_TREES_OCTAVES].left + 1, w->y + w->widgets[WIDX_TREES_OCTAVES].top + 1);
+
 }
 
 #pragma endregion
@@ -910,12 +989,20 @@ static void window_mapgen_simplex_mouseup(rct_window *w, rct_widgetindex widgetI
         mapgenSettings.water_level = _waterLevel + 2;
         mapgenSettings.floor = _randomTerrain ? -1 : _floorTexture;
         mapgenSettings.wall = _randomTerrain ? -1 : _wallTexture;
-        mapgenSettings.trees = _placeTrees;
-
+        // Don't use old tree generation if the simplex trees is enabled.
+        mapgenSettings.trees = _trees_place_trees ? false : _placeTrees; 
         mapgenSettings.simplex_low = _simplex_low;
         mapgenSettings.simplex_high = _simplex_high;
         mapgenSettings.simplex_base_freq = ((float)_simplex_base_freq) / 100.00f;
         mapgenSettings.simplex_octaves = _simplex_octaves;
+
+        mapgenSettings.trees_place = _trees_place_trees;
+        mapgenSettings.trees_amplitude = _trees_high;
+        mapgenSettings.trees_frequency = ((float)_trees_base_freq) / 100.00f;
+        mapgenSettings.trees_octaves = _trees_octaves;
+        mapgenSettings.trees_threshold = 0.5f;
+        mapgenSettings.trees_lacunarity = 2.0f;
+        mapgenSettings.trees_persistance = 0.65f;
 
         mapgen_generate(&mapgenSettings);
         gfx_invalidate_screen();
@@ -1336,7 +1423,7 @@ static void window_mapgen_draw_tab_image(rct_drawpixelinfo *dpi, rct_window *w, 
 static void window_mapgen_draw_tab_images(rct_drawpixelinfo *dpi, rct_window *w)
 {
     window_mapgen_draw_tab_image(dpi, w, WINDOW_MAPGEN_PAGE_BASE, SPR_G2_TAB_LAND);
-    window_mapgen_draw_tab_image(dpi, w, WINDOW_MAPGEN_PAGE_RANDOM, SPR_G2_TAB_TREE);
+    window_mapgen_draw_tab_image(dpi, w, WINDOW_MAPGEN_PAGE_TREES, SPR_G2_TAB_TREE);
     window_mapgen_draw_tab_image(dpi, w, WINDOW_MAPGEN_PAGE_SIMPLEX, SPR_G2_TAB_PENCIL);
     window_mapgen_draw_tab_image(dpi, w, WINDOW_MAPGEN_PAGE_HEIGHTMAP, SPR_TAB_GRAPH_0);
 }
