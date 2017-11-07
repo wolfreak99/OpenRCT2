@@ -1,4 +1,4 @@
-# Contributors to OpenRCT2
+﻿# Contributors to OpenRCT2
 Includes all git commit authors. Aliases are GitHub user names.
 
 ## Project team
@@ -67,6 +67,7 @@ The following people are not part of the project team, but have been contributin
 * Thomas Delebo (delebota) - Misc.
 * Brian Callahan (ibara) - OpenBSD port.
 * Jens Heuseveldt (jensj12) - Mountain tool improvements, misc.
+* Park Joon-Kyu (segfault87) - Misc.
 
 ## Bug fixes
 * (halfbro)
