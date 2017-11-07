@@ -164,7 +164,7 @@ static void window_guest_list_find_groups();
 
 static void get_arguments_from_peep(rct_peep *peep, uint32 *argument_1, uint32* argument_2);
 
-static sint32 guest_should_be_visible(rct_peep *peep);
+static bool guest_should_be_visible(rct_peep *peep);
 
 void window_guest_list_init_vars()
 {
@@ -482,7 +482,7 @@ static void window_guest_list_scrollgetsize(rct_window *w, sint32 scrollIndex, s
             if (_window_guest_list_selected_filter != -1)
                 if (window_guest_list_is_peep_in_filter(peep))
                     continue;
-            if (guest_should_be_visible(peep) == 0)
+            if (!guest_should_be_visible(peep))
                 continue;
             numGuests++;
         }
@@ -548,7 +548,7 @@ static void window_guest_list_scrollmousedown(rct_window *w, sint32 scrollIndex,
             if (_window_guest_list_selected_filter != -1)
                 if (window_guest_list_is_peep_in_filter(peep))
                     continue;
-            if (guest_should_be_visible(peep) == 0)
+            if (!guest_should_be_visible(peep))
                 continue;
 
             if (i == 0) {
@@ -729,7 +729,7 @@ static void window_guest_list_scrollpaint(rct_window *w, rct_drawpixelinfo *dpi,
                 gWindowMapFlashingFlags |= (1 << 0);
                 sprite_set_flashing((rct_sprite*)peep, true);
             }
-            if (guest_should_be_visible(peep) == 0)
+            if (!guest_should_be_visible(peep))
                 continue;
 
             // Check if y is beyond the scroll control
@@ -1022,10 +1022,10 @@ static void window_guest_list_find_groups()
     }
 }
 
-static sint32 guest_should_be_visible(rct_peep *peep)
+static bool guest_should_be_visible(rct_peep *peep)
 {
     if (_window_guest_list_tracking_only && !(peep->peep_flags & PEEP_FLAGS_TRACKING))
-        return 0;
+        return false;
 
     if (_window_guest_list_filter_name[0] != '\0') {
         char formatted[256];
@@ -1035,8 +1035,8 @@ static sint32 guest_should_be_visible(rct_peep *peep)
         format_string(formatted, sizeof(formatted), peep->name_string_idx, gCommonFormatArgs);
 
         if (stristr(formatted, _window_guest_list_filter_name) == nullptr)
-            return 0;
+            return false;
     }
 
-    return 1;
+    return true;
 }
