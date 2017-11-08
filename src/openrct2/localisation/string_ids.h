@@ -3818,7 +3818,8 @@ enum {
     STR_SCALING_QUALITY_SMOOTH_NN = 6159,
 
     STR_GUESTS_FILTER_BY_NAME = 6160,
-    STR_GUESTS_ENTER_NAME_TO_SEARCH = 6161,
+    STR_GUESTS_FILTER_BY_NAME_TIP = 6161,
+    STR_GUESTS_ENTER_NAME_TO_SEARCH = 6162,
 
     // Have to include resource strings (from scenarios and objects) for the time being now that language is partially working
     STR_COUNT = 32768

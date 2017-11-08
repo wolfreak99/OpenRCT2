@@ -4469,7 +4469,8 @@ STR_6157    :Console
 STR_6158    :Failed to load this file...{NEWLINE}Incompatible RCTC version: {COMMA16}
 STR_6159    :Smooth Nearest Neighbour
 STR_6160    :Search
-STR_6161    :Please provide the name to search:
+STR_6161    :{SMALLFONT}{BLACK}Search
+STR_6162    :Please provide the name to search:
 
 #############
 # Scenarios #
