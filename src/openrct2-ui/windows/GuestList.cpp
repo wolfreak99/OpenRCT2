@@ -1034,7 +1034,7 @@ static bool guest_should_be_visible(rct_peep *peep)
         set_format_arg(2, uint32, peep->id);
         format_string(formatted, sizeof(formatted), peep->name_string_idx, gCommonFormatArgs);
 
-        if (stristr(formatted, _window_guest_list_filter_name) == nullptr)
+        if (strcasestr(formatted, _window_guest_list_filter_name) == nullptr)
             return false;
     }
 

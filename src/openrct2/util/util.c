@@ -396,11 +396,12 @@ char *safe_strtrimleft(char *destination, const char *source, size_t size)
     return safe_strcpy(destination, source, size);
 }
 
-char* stristr(const char* haystack, const char* needle)
+#if !defined(_GNU_SOURCE)
+char * strcasestr(const char * haystack, const char * needle)
 {
-    const char* p1 = haystack;
-    const char* p2 = needle;
-    const char* r = *p2 == 0 ? haystack : 0;
+    const char * p1 = haystack;
+    const char * p2 = needle;
+    const char * r = *p2 == 0 ? haystack : 0;
 
     while (*p1 != 0 && *p2 != 0) {
         if (tolower((unsigned char)*p1) == tolower((unsigned char)*p2)) {
@@ -424,8 +425,9 @@ char* stristr(const char* haystack, const char* needle)
         p1++;
     }
 
-    return *p2 == 0 ? (char*)r : 0;
+    return *p2 == 0 ? (char *)r : 0;
 }
+#endif
 
 bool utf8_is_bom(const char *str)
 {
