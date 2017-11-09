@@ -404,20 +404,25 @@ char * strcasestr(const char * haystack, const char * needle)
     const char * r = *p2 == 0 ? haystack : 0;
 
     while (*p1 != 0 && *p2 != 0) {
-        if (tolower((unsigned char)*p1) == tolower((unsigned char)*p2)) {
+        if (tolower((unsigned char) *p1) == tolower((unsigned char) *p2))
+        {
             if (r == 0)
                 r = p1;
             p2++;
-        } else {
+        }
+        else
+        {
             p2 = needle;
-            if (r != 0) {
+            if (r != 0)
                 p1 = r + 1;
-            }
 
-            if (tolower((unsigned char)*p1) == tolower((unsigned char)*p2)) {
+            if (tolower((unsigned char) *p1) == tolower((unsigned char) *p2))
+            {
                 r = p1;
                 p2++;
-            } else {
+            }
+            else
+            {
                 r = 0;
             }
         }
@@ -425,7 +430,7 @@ char * strcasestr(const char * haystack, const char * needle)
         p1++;
     }
 
-    return *p2 == 0 ? (char *)r : 0;
+    return *p2 == 0 ? (char *) r : 0;
 }
 #endif
 

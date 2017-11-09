@@ -323,12 +323,22 @@ static void window_guest_list_mouseup(rct_window *w, rct_widgetindex widgetIndex
         w->scrolls[0].v_top = 0;
         break;
     case WIDX_FILTER_BY_NAME:
-        if (strnlen(_window_guest_list_filter_name, sizeof(_window_guest_list_filter_name)) > 0) {
+        if (strnlen(_window_guest_list_filter_name, sizeof(_window_guest_list_filter_name)) > 0)
+        {
             // Unset the search filter.
             _window_guest_list_filter_name[0] = '\0';
             w->pressed_widgets &= ~(1 << WIDX_FILTER_BY_NAME);
-        } else {
-            window_text_input_open(w, WIDX_FILTER_BY_NAME, STR_GUESTS_FILTER_BY_NAME, STR_GUESTS_ENTER_NAME_TO_SEARCH, STR_STRING, (uintptr_t)&_window_guest_list_filter_name, sizeof(_window_guest_list_filter_name));
+        }
+        else
+        {
+            window_text_input_open(
+                w,
+                WIDX_FILTER_BY_NAME,
+                STR_GUESTS_FILTER_BY_NAME,
+                STR_GUESTS_ENTER_NAME_TO_SEARCH,
+                STR_STRING,
+                (uintptr_t) &_window_guest_list_filter_name,
+                sizeof(_window_guest_list_filter_name));
         }
         break;
     }
@@ -370,7 +380,8 @@ static void window_guest_list_mousedown(rct_window *w, rct_widgetindex widgetInd
         _window_guest_list_num_pages = 1;
         window_guest_list_widgets[WIDX_TRACKING].type = WWT_EMPTY;
         window_guest_list_widgets[WIDX_FILTER_BY_NAME].type = WWT_EMPTY;
-        if (_window_guest_list_selected_tab == PAGE_INDIVIDUAL) {
+        if (_window_guest_list_selected_tab == PAGE_INDIVIDUAL)
+        {
             window_guest_list_widgets[WIDX_TRACKING].type = WWT_FLATBTN;
             window_guest_list_widgets[WIDX_FILTER_BY_NAME].type = WWT_FLATBTN;
         }
@@ -832,7 +843,8 @@ static void window_guest_list_scrollpaint(rct_window *w, rct_drawpixelinfo *dpi,
 
 static void window_guest_list_textinput(rct_window *w, rct_widgetindex widgetIndex, char *text)
 {
-    if (text != nullptr) {
+    if (text != nullptr)
+    {
         strncpy(_window_guest_list_filter_name, text, sizeof(_window_guest_list_filter_name));
         w->pressed_widgets |= (1 << WIDX_FILTER_BY_NAME);
     }
@@ -1027,7 +1039,8 @@ static bool guest_should_be_visible(rct_peep *peep)
     if (_window_guest_list_tracking_only && !(peep->peep_flags & PEEP_FLAGS_TRACKING))
         return false;
 
-    if (_window_guest_list_filter_name[0] != '\0') {
+    if (_window_guest_list_filter_name[0] != '\0')
+    {
         char formatted[256];
 
         set_format_arg(0, rct_string_id, peep->name_string_idx);
