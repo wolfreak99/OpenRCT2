@@ -44,8 +44,9 @@ enum WINDOW_GUEST_LIST_WIDGET_IDX {
     WIDX_TAB_1,
     WIDX_TAB_2,
     WIDX_GUEST_LIST,
+    WIDX_FILTER_BY_NAME,
     WIDX_FILTER_BY_NAME_STRING_BUTTON,
-    WIDX_FILTER_BY_NAME_CLEAR_BUTTON,
+    WIDX_FILTER_BY_NAME_CLEAR_BUTTON
 };
 
 enum {
@@ -87,6 +88,7 @@ static rct_widget window_guest_list_widgets[] = {
     { WWT_TAB,              1,  3,      33,     17, 43,     IMAGE_TYPE_REMAP | SPR_TAB,   STR_INDIVIDUAL_GUESTS_TIP },    // tab 1
     { WWT_TAB,              1,  34,     64,     17, 43,     IMAGE_TYPE_REMAP | SPR_TAB,   STR_SUMMARISED_GUESTS_TIP },    // tab 2
     { WWT_SCROLL,           1,  3,      346,    85, 326,    SCROLL_BOTH,            STR_NONE },                     // guest list
+    { WWT_FLATBTN,          1,  293,    316,    46, 69,     SPR_G2_FILTER_BY_NAME,  STR_GUESTS_FILTER_BY_NAME_TIP }, // filter by name
     { WWT_TEXT_BOX,         1,  4,      204,    72, 83,     STR_NONE,               STR_NONE },                     // WIDX_FILTER_BY_NAME_STRING_BUTTON
     { WWT_DROPDOWN_BUTTON,  1,  205,    291,    72, 83,     STR_OBJECT_SEARCH_CLEAR, STR_NONE },                    // WIDX_FILTER_BY_NAME_CLEAR_BUTTON
     { WIDGETS_END },
@@ -160,6 +162,7 @@ static uint8 _window_guest_list_groups_guest_faces[240 * 58];
 static uint8 _window_guest_list_group_index[240];
 
 static char _window_guest_list_filter_name[32];
+static bool _window_guest_list_filter_name_visible;
 
 static sint32 window_guest_list_is_peep_in_filter(rct_peep* peep);
 static void window_guest_list_find_groups();
@@ -202,6 +205,7 @@ rct_window * window_guest_list_open()
         (1 << WIDX_TRACKING) |
         (1 << WIDX_TAB_1) |
         (1 << WIDX_TAB_2) |
+        (1 << WIDX_FILTER_BY_NAME) |
         (1 << WIDX_FILTER_BY_NAME_STRING_BUTTON) |
         (1 << WIDX_FILTER_BY_NAME_CLEAR_BUTTON);
 
@@ -214,12 +218,13 @@ rct_window * window_guest_list_open()
     _window_guest_list_num_pages = 1;
     _window_guest_list_tracking_only = false;
     _window_guest_list_filter_name[0] = '\0';
+    _window_guest_list_filter_name_visible = false;
     window_guest_list_widgets[WIDX_PAGE_DROPDOWN].type = WWT_EMPTY;
     window_guest_list_widgets[WIDX_PAGE_DROPDOWN_BUTTON].type = WWT_EMPTY;
     
-    memset(_window_guest_list_filter_name, 0, sizeof(_window_guest_list_filter_name));
     window_guest_list_widgets[WIDX_FILTER_BY_NAME_STRING_BUTTON].string = _window_guest_list_filter_name;
-    
+    memset(_window_guest_list_filter_name, 0, sizeof(_window_guest_list_filter_name));
+
     window->var_492 = 0;
     window->min_width = 350;
     window->min_height = 330;
@@ -242,6 +247,7 @@ rct_window * window_guest_list_open_with_filter(sint32 type, sint32 index)
     _window_guest_list_selected_page = 0;
     _window_guest_list_num_pages = 1;
     _window_guest_list_tracking_only = false;
+    _window_guest_list_filter_name_visible = false;
 
     switch(type) {
     case GLFT_GUESTS_ON_RIDE:
@@ -304,8 +310,8 @@ rct_window * window_guest_list_open_with_filter(sint32 type, sint32 index)
     }
     }
 
-    memset(_window_guest_list_filter_name, 0, sizeof(_window_guest_list_filter_name));
     window_guest_list_widgets[WIDX_FILTER_BY_NAME_STRING_BUTTON].string = _window_guest_list_filter_name;
+    memset(_window_guest_list_filter_name, 0, sizeof(_window_guest_list_filter_name));
 
     return w;
 }
@@ -316,9 +322,6 @@ rct_window * window_guest_list_open_with_filter(sint32 type, sint32 index)
  */
 static void window_guest_list_mouseup(rct_window *w, rct_widgetindex widgetIndex)
 {
-    window_cancel_textbox();
-    widget_invalidate(w, WIDX_FILTER_BY_NAME_STRING_BUTTON);
-
     switch (widgetIndex) {
     case WIDX_CLOSE:
         window_close(w);
@@ -332,11 +335,11 @@ static void window_guest_list_mouseup(rct_window *w, rct_widgetindex widgetIndex
             w->pressed_widgets |= (1 << WIDX_TRACKING);
         else
             w->pressed_widgets &= ~(1 << WIDX_TRACKING);
-        window_invalidate(w);
         w->scrolls[0].v_top = 0;
+        window_invalidate(w);
         break;
     case WIDX_FILTER_BY_NAME_STRING_BUTTON:
-        window_start_textbox(w, widgetIndex, STR_STRING, _window_guest_list_filter_name, 40);
+        window_start_textbox(w, widgetIndex, STR_STRING, _window_guest_list_filter_name, 32);
         widget_invalidate(w, WIDX_FILTER_BY_NAME_STRING_BUTTON);
         break;
     case WIDX_FILTER_BY_NAME_CLEAR_BUTTON:
@@ -373,9 +376,6 @@ static void window_guest_list_mousedown(rct_window *w, rct_widgetindex widgetInd
 {
     sint32 i;
     
-    window_cancel_textbox();
-    widget_invalidate(w, WIDX_FILTER_BY_NAME_STRING_BUTTON);
-
     switch (widgetIndex) {
     case WIDX_TAB_1:
     case WIDX_TAB_2:
@@ -386,9 +386,11 @@ static void window_guest_list_mousedown(rct_window *w, rct_widgetindex widgetInd
         _window_guest_list_selected_page = 0;
         _window_guest_list_num_pages = 1;
         window_guest_list_widgets[WIDX_TRACKING].type = WWT_EMPTY;
+        window_guest_list_widgets[WIDX_FILTER_BY_NAME].type = WWT_EMPTY;
         if (_window_guest_list_selected_tab == PAGE_INDIVIDUAL)
         {
             window_guest_list_widgets[WIDX_TRACKING].type = WWT_FLATBTN;
+            window_guest_list_widgets[WIDX_FILTER_BY_NAME].type = WWT_FLATBTN;
         }
         window_guest_list_widgets[WIDX_PAGE_DROPDOWN].type = WWT_EMPTY;
         window_guest_list_widgets[WIDX_PAGE_DROPDOWN_BUTTON].type = WWT_EMPTY;
@@ -437,6 +439,20 @@ static void window_guest_list_mousedown(rct_window *w, rct_widgetindex widgetInd
         );
 
         dropdown_set_checked(_window_guest_list_selected_view, true);
+        break;
+    case WIDX_FILTER_BY_NAME:
+        _window_guest_list_filter_name_visible = !_window_guest_list_filter_name_visible;
+        if (_window_guest_list_filter_name_visible)
+        {
+            window_start_textbox(w, WIDX_FILTER_BY_NAME_STRING_BUTTON, STR_STRING, _window_guest_list_filter_name, 32);
+            w->pressed_widgets |= (1 << WIDX_FILTER_BY_NAME);
+        }
+        else
+        {
+            w->pressed_widgets &= ~(1 << WIDX_FILTER_BY_NAME);
+        }
+        w->scrolls[0].v_top = 0;
+        window_invalidate(w);
         break;
     }
 }
@@ -656,10 +672,18 @@ static void window_guest_list_invalidate(rct_window *w)
 
     window_guest_list_widgets[WIDX_FILTER_BY_NAME_STRING_BUTTON].type = WWT_EMPTY;
     window_guest_list_widgets[WIDX_FILTER_BY_NAME_CLEAR_BUTTON].type = WWT_EMPTY;
+    window_guest_list_widgets[WIDX_GUEST_LIST].top = 72;
+    w->enabled_widgets &= ~((1 << WIDX_FILTER_BY_NAME_STRING_BUTTON) | (1 << WIDX_FILTER_BY_NAME_CLEAR_BUTTON));
+
     if (_window_guest_list_selected_tab == PAGE_INDIVIDUAL)
     {
-        window_guest_list_widgets[WIDX_FILTER_BY_NAME_STRING_BUTTON].type = WWT_TEXT_BOX;
-        window_guest_list_widgets[WIDX_FILTER_BY_NAME_CLEAR_BUTTON].type = WWT_DROPDOWN_BUTTON;
+        if (_window_guest_list_filter_name_visible)
+        {
+            window_guest_list_widgets[WIDX_FILTER_BY_NAME_STRING_BUTTON].type = WWT_TEXT_BOX;
+            window_guest_list_widgets[WIDX_FILTER_BY_NAME_CLEAR_BUTTON].type = WWT_DROPDOWN_BUTTON;
+            window_guest_list_widgets[WIDX_GUEST_LIST].top = 85;
+            w->enabled_widgets |= ((1 << WIDX_FILTER_BY_NAME_STRING_BUTTON) | (1 << WIDX_FILTER_BY_NAME_CLEAR_BUTTON));
+        }
     }
 
     if (_window_guest_list_num_pages > 1) {
@@ -1071,7 +1095,7 @@ static bool guest_should_be_visible(rct_peep *peep)
     if (_window_guest_list_tracking_only && !(peep->peep_flags & PEEP_FLAGS_TRACKING))
         return false;
 
-    if (_window_guest_list_filter_name[0] != '\0')
+    if (_window_guest_list_filter_name_visible && _window_guest_list_filter_name[0] != '\0')
     {
         char formatted[256];
 
