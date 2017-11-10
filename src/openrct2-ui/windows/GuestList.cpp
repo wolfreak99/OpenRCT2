@@ -668,6 +668,8 @@ static void window_guest_list_invalidate(rct_window *w)
     window_guest_list_widgets[WIDX_PAGE_DROPDOWN].text = pageNames[_window_guest_list_selected_page];
     window_guest_list_widgets[WIDX_TRACKING].left = 321 - 350 + w->width;
     window_guest_list_widgets[WIDX_TRACKING].right = 344 - 350 + w->width;
+    window_guest_list_widgets[WIDX_FILTER_BY_NAME].left = 293 - 350 + w->width;
+    window_guest_list_widgets[WIDX_FILTER_BY_NAME].right = 316 - 350 + w->width;
 
     window_guest_list_widgets[WIDX_FILTER_BY_NAME_STRING_BUTTON].string = _window_guest_list_filter_name;
 
