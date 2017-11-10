@@ -344,6 +344,7 @@ static void window_guest_list_mouseup(rct_window *w, rct_widgetindex widgetIndex
         break;
     case WIDX_FILTER_BY_NAME_CLEAR_BUTTON:
         memset(_window_guest_list_filter_name, 0, sizeof(_window_guest_list_filter_name));
+        window_start_textbox(w, WIDX_FILTER_BY_NAME_STRING_BUTTON, STR_STRING, _window_guest_list_filter_name, 32);
         w->scrolls->v_top = 0;
         window_invalidate(w);
         break;
