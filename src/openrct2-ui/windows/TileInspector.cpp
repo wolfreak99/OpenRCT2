@@ -636,6 +636,33 @@ static void window_tile_inspector_load_tile(rct_window* w)
     window_invalidate(w);
 }
 
+static void window_tile_inspector_load_tile_specific(rct_window* w, rct_tile_element *match)
+{
+    rct_tile_element *element = map_get_first_element_at(windowTileInspectorTileX, windowTileInspectorTileY);
+    sint32 numItems = 0, found = -1;
+    do {
+        if (match == element)
+            found = numItems;
+        numItems++;
+    } while (!tile_element_is_last_for_tile(element++));
+
+    windowTileInspectorElementCount = numItems;
+
+    // Set default page
+    if (found != -1)
+        window_tile_inspector_select_element_from_list(w, found);
+    else {
+        window_tile_inspector_set_page(w, TILE_INSPECTOR_PAGE_DEFAULT);
+
+        // undo selection and buttons affecting it
+        w->selected_list_item = -1;
+        window_tile_inspector_auto_set_buttons(w);
+    }
+
+    w->scrolls[0].v_top = 0;
+    window_invalidate(w);
+}
+
 static void window_tile_inspector_insert_corrupt_element(sint32 elementIndex)
 {
     openrct2_assert(elementIndex >= 0 && elementIndex < windowTileInspectorElementCount,
@@ -1310,13 +1337,31 @@ static void window_tile_inspector_update_selected_tile(rct_window *w, sint32 x, 
     windowTileInspectorToolMouseX = x;
     windowTileInspectorToolMouseY = y;
 
-    sint16 mapX = x;
-    sint16 mapY = y;
+
+    sint16 mapX, mapY;
     sint32 direction;
-    screen_pos_to_map_pos(&mapX, &mapY, &direction);
-    if (mapX == LOCATION_NULL) {
-        return;
+    rct_tile_element *element;
+
+    bool load_from_element = false;
+    bool load_from_tile = false;
+
+    mapX = LOCATION_NULL;
+    mapY = y;
+    get_map_coordinates_from_pos(x, y, VIEWPORT_INTERACTION_ITEM_SPRITE, &mapX, &mapY, nullptr, &element, nullptr);
+    if (mapX != LOCATION_NULL) {
+        load_from_element = true;
     }
+    else {
+        mapX = x;
+        mapY = y;
+        screen_pos_to_map_pos(&mapX, &mapY, &direction);
+        if (mapX != LOCATION_NULL) {
+            load_from_tile = true;
+        }
+    }
+
+    if (!load_from_element && !load_from_tile)
+        return;
 
     // Tile is already selected
     if (windowTileInspectorTileSelected && mapX == windowTileInspectorToolMapX && mapY == windowTileInspectorToolMapY) {
@@ -1329,7 +1374,12 @@ static void window_tile_inspector_update_selected_tile(rct_window *w, sint32 x, 
     windowTileInspectorTileX = mapX >> 5;
     windowTileInspectorTileY = mapY >> 5;
 
-    window_tile_inspector_load_tile(w);
+    if (load_from_element) {
+        window_tile_inspector_load_tile_specific(w, element);
+    }
+    else {
+        window_tile_inspector_load_tile(w);
+    }
     window_tile_inspector_auto_set_buttons(w);
 }
 
