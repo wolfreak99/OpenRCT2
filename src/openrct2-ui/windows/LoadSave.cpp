@@ -40,6 +40,7 @@
 #include <openrct2/scenario/Scenario.h>
 #include <openrct2/world/Park.h>
 #include <openrct2/ride/TrackDesign.h>
+#include <openrct2/sprites.h>
 
 #pragma region Widgets
 
@@ -71,8 +72,8 @@ static rct_widget window_loadsave_widgets[] =
     { WWT_CLOSEBOX,     0,      WW - 13,            WW - 3,         2,          13,         STR_CLOSE_X,                        STR_CLOSE_WINDOW_TIP },     // Window close button
     { WWT_RESIZE,       1,      0,                  WW - 1,         WH - 1,     WH - 1,     0xFFFFFFFF,                         STR_NONE },                 // tab content panel
     { WWT_BUTTON,       0,      4,                  85,             36,         49,         STR_LOADSAVE_DEFAULT,               STR_LOADSAVE_DEFAULT_TIP }, // Go to default directory
-    { WWT_BUTTON,       0,      86,                 167,            36,         49,         STR_FILEBROWSER_ACTION_UP,          STR_NONE},                  // Up
-    { WWT_BUTTON,       0,      168,                251,            36,         49,         STR_FILEBROWSER_ACTION_NEW_FOLDER,  STR_NONE },                 // New folder
+    { WWT_FLATBTN,      0,      86,                 167,            36,         49,         SPR_G2_PARENT_FOLDER,               STR_NONE },                  // Up
+    { WWT_FLATBTN,      0,      168,                251,            36,         49,         SPR_G2_NEW_FOLDER,                  STR_NONE },                 // New folder
     { WWT_BUTTON,       0,      252,                334,            36,         49,         STR_FILEBROWSER_ACTION_NEW_FILE,    STR_NONE },                 // New file
     { WWT_TABLE_HEADER, 0,      4,                  (WW - 5) / 2,   55,         68,         STR_NONE,                           STR_NONE },                 // Name
     { WWT_TABLE_HEADER, 0,      (WW - 5) / 2 + 1,   WW - 5 - 1,     55,         68,         STR_NONE,                           STR_NONE },                 // Date
@@ -806,7 +807,7 @@ static void window_loadsave_populate_list(rct_window *w, sint32 includeNewItem, 
 
     // Show "new" buttons when saving
     window_loadsave_widgets[WIDX_NEW_FILE].type = includeNewItem ? WWT_BUTTON : WWT_EMPTY;
-    window_loadsave_widgets[WIDX_NEW_FOLDER].type = includeNewItem ? WWT_BUTTON : WWT_EMPTY;
+    window_loadsave_widgets[WIDX_NEW_FOLDER].type = includeNewItem ? WWT_FLATBTN : WWT_EMPTY;
 
     sint32 drives = platform_get_drives();
     if (str_is_null_or_empty(directory) && drives)

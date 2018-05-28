@@ -847,6 +847,9 @@ enum {
     
     SPR_G2_EYEDROPPER = SPR_G2_BEGIN + 123,
 
+    SPR_G2_PARENT_FOLDER = SPR_G2_BEGIN + 124,
+    SPR_G2_NEW_FOLDER = SPR_G2_BEGIN + 125,
+
     // 0x60000, chosen because it's a round hex number
     // of the last possible range of image ID values that is large enough to fit all csg1 sprites.
     SPR_CSG_BEGIN = 393216,

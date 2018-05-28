@@ -439,5 +439,11 @@
         "path": "icons/eyedropper.png",
         "x_offset": 5,
         "y_offset": 5
+    },
+    {
+        "path": "icons/parent_folder.png"
+    },
+    {
+        "path": "icons/new_folder.png"
     }
 ]
