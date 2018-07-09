@@ -5626,7 +5626,25 @@ static void window_ride_graphs_scrollgetheight(rct_window *w, int32_t scrollInde
  */
 static void window_ride_graphs_15(rct_window *w, int32_t scrollIndex, int32_t scrollAreaType)
 {
-    w->list_information_type |= 0x8000;
+    // Scroll to currently logged vehicle's location when graph area is clicked
+    if (scrollAreaType == SCROLL_PART_VIEW)
+    {
+        auto ride = get_ride(w->number);
+        rct_ride_measurement *measurement = ride_get_measurement(w->number, nullptr);
+        uint16_t spriteIndex = ride->vehicles[measurement->vehicle_index];
+        if (spriteIndex != SPRITE_INDEX_NULL)
+        {
+            rct_vehicle *vehicle = GET_VEHICLE(spriteIndex);
+
+            rct_window *mainWindow = window_get_main();
+            window_scroll_to_location(mainWindow, vehicle->x, vehicle->y, vehicle->z);
+        }
+    }
+    else
+    {
+        // If scrollbar, disable autoscroll
+        w->list_information_type |= 0x8000;
+    }
 }
 
 /**
