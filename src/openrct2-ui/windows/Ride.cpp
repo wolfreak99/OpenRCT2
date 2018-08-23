@@ -6354,8 +6354,8 @@ static void window_ride_income_invalidate(rct_window* w)
     window_ride_income_widgets[WIDX_PRIMARY_PRICE_LABEL].tooltip = STR_NONE;
     window_ride_income_widgets[WIDX_PRIMARY_PRICE].tooltip = STR_NONE;
 
-    // If ride prices are locked, do not allow setting the price, unless we're dealing with a shop or toilet.
-    if (!park_ride_prices_unlocked() && rideEntry->shop_item == SHOP_ITEM_NONE && ride->type != RIDE_TYPE_TOILETS)
+    // Hide primary price widgets if user cannot modify.
+    if (!window_ride_income_can_modify_primary_price(w))
     {
         w->disabled_widgets |= (1 << WIDX_PRIMARY_PRICE);
         window_ride_income_widgets[WIDX_PRIMARY_PRICE_LABEL].tooltip = STR_RIDE_INCOME_ADMISSION_PAY_FOR_ENTRY_TIP;
