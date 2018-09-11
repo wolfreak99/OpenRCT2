@@ -179,4 +179,12 @@ bool platform_get_steam_path(utf8* outPath, size_t outSize)
     return false;
 }
 
+void platform_open_browser(const char* url)
+{
+    @autoreleasepool
+    {
+        [[NSWorkspace sharedWorkspace]] openURL:[NSURL URLWithString:[NSString stringWithUTF8String:url]]];
+    }
+}
+
 #endif

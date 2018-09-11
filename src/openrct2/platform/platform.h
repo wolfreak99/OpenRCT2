@@ -158,4 +158,6 @@ void macos_disallow_automatic_window_tabbing();
 utf8* macos_str_decomp_to_precomp(utf8* input);
 #endif
 
+void platform_open_browser(const char* url);
+
 #endif

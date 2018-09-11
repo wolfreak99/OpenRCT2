@@ -726,4 +726,10 @@ bool platform_setup_uri_protocol()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+
+void platform_open_browser(const char* url)
+{
+    ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNORMAL);
+}
+
 #endif
