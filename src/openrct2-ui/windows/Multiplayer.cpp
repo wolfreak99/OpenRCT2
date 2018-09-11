@@ -16,6 +16,7 @@
 #include <openrct2/network/network.h>
 #include <openrct2/sprites.h>
 #include <openrct2/util/Util.h>
+#include <openrct2/platform/platform.h>
 
 // clang-format off
 enum {
@@ -34,6 +35,8 @@ enum WINDOW_MULTIPLAYER_WIDGET_IDX {
     WIDX_TAB2,
     WIDX_TAB3,
     WIDX_TAB4,
+
+    WIDX_OPEN_WEBSITE_HOVER = 8,
 
     WIDX_HEADER_PLAYER = 8,
     WIDX_HEADER_GROUP,
@@ -67,6 +70,7 @@ enum WINDOW_MULTIPLAYER_WIDGET_IDX {
 
 static rct_widget window_multiplayer_information_widgets[] = {
     MAIN_MULTIPLAYER_WIDGETS,
+    { WWT_BUTTON,           0,  0,      0,      81,     90,     STR_NONE,                   STR_NONE },                 // Open Website button
     { WIDGETS_END }
 };
 
@@ -89,7 +93,7 @@ static rct_widget window_multiplayer_groups_widgets[] = {
     { WWT_BUTTON,           1,  215,    306,    65,     76,     STR_RENAME_GROUP,           STR_NONE },                 // rename group button
     { WWT_DROPDOWN,         1,  72,     246,    80,     91,     0xFFFFFFFF,                 STR_NONE },                 // selected group
     { WWT_BUTTON,           1,  236,    246,    81,     90,     STR_DROPDOWN_GLYPH,         STR_NONE },                 //
-    { WWT_SCROLL,           1,  3,      316,    94,     300,    SCROLL_VERTICAL,                            STR_NONE },                 // permissions list
+    { WWT_SCROLL,           1,  3,      316,    94,     300,    SCROLL_VERTICAL,            STR_NONE },                 // permissions list
     { WIDGETS_END }
 };
 
@@ -109,7 +113,7 @@ static rct_widget *window_multiplayer_page_widgets[] = {
 };
 
 static constexpr const uint64_t window_multiplayer_page_enabled_widgets[] = {
-    (1 << WIDX_CLOSE) | (1 << WIDX_TAB1) | (1 << WIDX_TAB2) | (1 << WIDX_TAB3) | (1 << WIDX_TAB4),
+    (1 << WIDX_CLOSE) | (1 << WIDX_TAB1) | (1 << WIDX_TAB2) | (1 << WIDX_TAB3) | (1 << WIDX_TAB4) | (1 << WIDX_OPEN_WEBSITE_HOVER),
     (1 << WIDX_CLOSE) | (1 << WIDX_TAB1) | (1 << WIDX_TAB2) | (1 << WIDX_TAB3) | (1 << WIDX_TAB4),
     (1 << WIDX_CLOSE) | (1 << WIDX_TAB1) | (1 << WIDX_TAB2) | (1 << WIDX_TAB3) | (1 << WIDX_TAB4) | (1 << WIDX_DEFAULT_GROUP) | (1 << WIDX_DEFAULT_GROUP_DROPDOWN) | (1 << WIDX_ADD_GROUP) | (1 << WIDX_REMOVE_GROUP) | (1 << WIDX_RENAME_GROUP) | (1 << WIDX_SELECTED_GROUP) | (1 << WIDX_SELECTED_GROUP_DROPDOWN),
     (1 << WIDX_CLOSE) | (1 << WIDX_TAB1) | (1 << WIDX_TAB2) | (1 << WIDX_TAB3) | (1 << WIDX_TAB4) | (1 << WIDX_LOG_CHAT_CHECKBOX) | (1 << WIDX_LOG_SERVER_ACTIONS_CHECKBOX) | (1 << WIDX_KNOWN_KEYS_ONLY_CHECKBOX),
@@ -401,6 +405,20 @@ static void window_multiplayer_information_mouseup(rct_window* w, rct_widgetinde
                 window_multiplayer_set_page(w, widgetIndex - WIDX_TAB1);
             }
             break;
+        case WIDX_OPEN_WEBSITE_HOVER:
+
+            const utf8 * providerWebsite = network_get_server_provider_website();
+            if (!str_is_null_or_empty(providerWebsite))
+            {
+                char url[256];
+                char* urlBuffer = url;
+                url_from_string(urlBuffer, (char*)providerWebsite, sizeof(url));
+
+                if (!str_is_null_or_empty(url)) {
+                    platform_open_browser(url);
+                }
+            }
+            break;
     }
 }
 
@@ -494,6 +512,21 @@ static void window_multiplayer_information_paint(rct_window* w, rct_drawpixelinf
         if (!str_is_null_or_empty(providerWebsite))
         {
             gfx_draw_string_left(dpi, STR_PROVIDER_WEBSITE, (void*)&providerWebsite, COLOUR_BLACK, x, y);
+
+            int32_t labelWidth = gfx_get_string_width(language_get_string(STR_PROVIDER_EMAIL));
+            int32_t websiteWidth = gfx_get_string_width(providerWebsite);
+
+            rct_widget* widget = &window_multiplayer_information_widgets[WIDX_OPEN_WEBSITE_HOVER];
+            widget->left = x + labelWidth;
+            widget->right = x + labelWidth + websiteWidth;
+            widget->top = y;
+            widget->bottom = y + 15;
+
+            widget_set_enabled(w, WIDX_OPEN_WEBSITE_HOVER, true);
+        }
+        else
+        {
+            widget_set_enabled(w, WIDX_OPEN_WEBSITE_HOVER, false);
         }
     }
 }
