@@ -68,4 +68,8 @@ uint8_t soft_light(uint8_t a, uint8_t b);
 
 size_t strcatftime(char* buffer, size_t bufferSize, const char* format, const struct tm* tp);
 
+void url_from_string(char* buffer, char* data, size_t bufferSize);
+char* url_begin(char* data);
+char* url_end(char* data);
+
 #endif
