@@ -406,14 +406,12 @@ static void window_multiplayer_information_mouseup(rct_window* w, rct_widgetinde
             }
             break;
         case WIDX_OPEN_WEBSITE_HOVER:
-
-            const utf8 * providerWebsite = network_get_server_provider_website();
+            const char* providerWebsite = (const char*)network_get_server_provider_website();
             if (!str_is_null_or_empty(providerWebsite))
             {
                 char url[256];
                 char* urlBuffer = url;
-                url_from_string(urlBuffer, (char*)providerWebsite, sizeof(url));
-
+                url_from_string(urlBuffer, providerWebsite, sizeof(url));
                 if (!str_is_null_or_empty(url)) {
                     platform_open_browser(url);
                 }
@@ -513,14 +511,17 @@ static void window_multiplayer_information_paint(rct_window* w, rct_drawpixelinf
         {
             gfx_draw_string_left(dpi, STR_PROVIDER_WEBSITE, (void*)&providerWebsite, COLOUR_BLACK, x, y);
 
-            int32_t labelWidth = gfx_get_string_width(language_get_string(STR_PROVIDER_EMAIL));
+            // TODO there is an issue with the button not overlapping properly.
+            // Also, find a way to make the button invisible but still there.
+            // Or just replace the button with a button on the right that says "Open Website" or something
+            int32_t labelWidth = gfx_get_string_width(language_get_string(STR_PROVIDER_WEBSITE));
             int32_t websiteWidth = gfx_get_string_width(providerWebsite);
 
             rct_widget* widget = &window_multiplayer_information_widgets[WIDX_OPEN_WEBSITE_HOVER];
             widget->left = x + labelWidth;
-            widget->right = x + labelWidth + websiteWidth;
+            widget->right = widget->left + websiteWidth;
             widget->top = y;
-            widget->bottom = y + 15;
+            widget->bottom = y + 11;
 
             widget_set_enabled(w, WIDX_OPEN_WEBSITE_HOVER, true);
         }
