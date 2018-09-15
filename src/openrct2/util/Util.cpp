@@ -724,17 +724,27 @@ size_t strcatftime(char* buffer, size_t bufferSize, const char* format, const st
     return 0;
 }
 
-void url_from_string(char* buffer, char *data, size_t bufferSize)
-{
-    char *ret = url_begin(data);
-    if (ret)
-    {
-        char *ret2 = url_end(ret);
-        char *url = (char *)malloc(256 * sizeof(char));
+char* url_begin(char* data);
+char* url_end(char* data);
 
-        strncpy(url, ret, ret2 - ret);
-        ret2 = url_end(url);
-        *ret2 = '\0';
+void url_from_string(char* buffer, const char* data, size_t bufferSize)
+{
+    char* dataPtr = (char*)data;
+    // Search for the beginning of a url
+    char* urlBegin = url_begin(dataPtr);
+    if (urlBegin)
+    {
+        char* url = (char*)malloc(bufferSize);
+
+        // Find the ending of the url, used for determining url length
+        char* urlEnd = url_end(urlBegin);
+        size_t urlLength = (size_t)(urlEnd - urlBegin);
+
+        // Copy url from the beginning point with the url length.
+        strncpy(url, urlBegin, urlLength);
+        url[urlLength] = '\0';
+
+        // Copy the detected url over to the buffer and free url allocation
         safe_strcpy(buffer, url, bufferSize);
         SafeFree(url);
     }
@@ -746,11 +756,13 @@ void url_from_string(char* buffer, char *data, size_t bufferSize)
 
 char* url_begin(char* data)
 {
+    // Checks for "http://" or "https://", and if url is found, data is returned starting at url
     char *ret = strstr(data, "http://");
-    if (!ret)
-    {
-        ret = strstr(data, "https://");
-    }
+    if (ret)
+        return ret;
+    
+    // Check if string contains "https://"
+    ret = strstr(data, "https://");
     return ret;
 }
 
@@ -773,7 +785,7 @@ char* url_end(char *data)
             *data != ':' &&
             *data != '/' &&
             *data != '&'
-        )
+            )
         {
             break;
         }
